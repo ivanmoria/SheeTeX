@@ -87,6 +87,11 @@ Follow these steps to run the application:
 3. **Run the application:** 
    ```bash
     python sheet.py
+
+4. **`.app` installation file (optional):** 
+   ```bash
+    pip install pyinstaller
+    pyinstaller sheet.spec
 ## Basic Usage
 
 - Load your CSV file exported from Google Sheets.
