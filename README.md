@@ -5,10 +5,6 @@ SheeTeX: An Interactive Python Gadget to Simplify Bibliometric Analysis
 
 This project is a Python application with a graphical interface (PyQt5) for loading, manipulating, filtering, and exporting bibliographic data organized in CSV files from a Google Sheets spreadsheet. The tool allows detailed data analysis, including expansion of columns with multiple entries, filtering by region and authors, display in a table with visual grouping, and exporting metrics to CSV.
 
-> To facilitate access for users without Python knowledge, I also developed an application for **macOS**. The executable is available at [`SheeTex.app`](./SheeTex.app)
-
----
-
 ## Screenshots
 
 ### Main interface with loaded data:
@@ -56,7 +52,7 @@ This project is a Python application with a graphical interface (PyQt5) for load
 
 ---
 
-## How to Run the Project
+## Instalation
 
 Follow these steps to run the application:
 
@@ -70,10 +66,14 @@ Follow these steps to run the application:
 3. **Run the application:** 
    ```bash
     python sheet.py
-4. **`.app` installation file (optional):** 
+    ```
+ To facilitate access for users without Python knowledge, you can Clone this repository, run this code in your terminal and install this `.app:`
+
    ```bash
-    pip install pyinstaller
-    pyinstaller sheet.spec
+   pip install pyinstaller
+   pyinstaller sheet.spec
+```
+
 ## Basic Usage
 
 - Load your CSV file exported from Google Sheets.
