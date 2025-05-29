@@ -3,9 +3,7 @@
 SheeTeX: An Interactive Python Gadget to Simplify Bibliometric Analysis
 </h1>
 
-This project is a Python application with a graphical interface (PyQt5) for loading, manipulating, filtering, and exporting bibliographic data organized in CSV files from a Google Sheets spreadsheet.
-
-The tool allows detailed data analysis, including expansion of columns with multiple entries, filtering by region and authors, display in a table with visual grouping, and exporting metrics to CSV.
+This project is a Python application with a graphical interface (PyQt5) for loading, manipulating, filtering, and exporting bibliographic data organized in CSV files from a Google Sheets spreadsheet. The tool allows detailed data analysis, including expansion of columns with multiple entries, filtering by region and authors, display in a table with visual grouping, and exporting metrics to CSV.
 
 > To facilitate access for users without Python knowledge, I also developed an application for **macOS**. The executable is available at [`SheeTex.app`](./SheeTex.app)
 
@@ -44,24 +42,10 @@ The tool allows detailed data analysis, including expansion of columns with mult
 ### 4. Metrics Export
 - **Export metrics to CSV:** Visible metrics can be exported to a CSV file inside the `PYMT` folder on the desktop.
 - **Messages via `QMessageBox`** inform about success or failure of the export.
+### 4. APA to BibTeX converter
 
 ---
 
-## 🧩 Important Function Structure
-
-| Function                           | Description                                                                                       |
-|----------------------------------|-------------------------------------------------------------------------------------------------|
-| `load_data()`                    | Loads the CSV, expands columns, and updates menus and table.                                    |
-| `expand_ref_column(df)`          | Expands multiple references into separate rows.                                                 |
-| `expand_affiliations_column(df)` | Expands multiple affiliations into separate rows.                                              |
-| `expand_authors_column(df)`      | Links authors and affiliations and extracts country, generating separate rows per author/affiliation. |
-| `update_region_menu()`           | Updates the region selection menu.                                                              |
-| `update_author_menu()`           | Updates the author selection menu, with sorting options.                                        |
-| `populate_table_custom(df)`      | Fills the table with the provided data, applies colors, merges cells, and removes duplicates.  |
-| `update_spans()`                 | Visually merges cells with consecutively repeated values.                                       |
-| `exportar_metricas_para_csv()`   | Exports the metric text to a CSV file in the `PYMT` folder on the desktop.                       |
-
----
 
 ## Dependencies
 
@@ -77,7 +61,6 @@ The tool allows detailed data analysis, including expansion of columns with mult
 Follow these steps to run the application:
 
 1. **Clone the repository** (if you haven't yet):
-
    ```bash
    git clone https://github.com/ivanmoria/sheet_view_extract_bibref.git
    cd sheet_view_extract_bibref
@@ -87,7 +70,6 @@ Follow these steps to run the application:
 3. **Run the application:** 
    ```bash
     python sheet.py
-
 4. **`.app` installation file (optional):** 
    ```bash
     pip install pyinstaller
