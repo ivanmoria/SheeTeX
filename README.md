@@ -60,9 +60,11 @@ Follow these steps to run the application:
    ```bash
    git clone https://github.com/ivanmoria/sheet_view_extract_bibref.git
    cd sheet_view_extract_bibref
+   ```
 2. **Install dependencies:** 
    ```bash
    pip install -r requirements.txt
+   ```
 3. **Run the application:** 
    ```bash
     python sheet.py
