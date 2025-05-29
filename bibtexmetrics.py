@@ -27,17 +27,18 @@ class BibtexViewer(QMainWindow):
 
         self.update_button = QPushButton("Atualizar Tabelas")
         self.update_button.clicked.connect(self.reload_data)
-        button_layout.addWidget(self.update_button)
+       # button_layout.addWidget(self.update_button)
 
         self.export_button = QPushButton("Exportar Tabela Atual")
         self.export_button.clicked.connect(self.exportar_tabela_atual)
         button_layout.addWidget(self.export_button)
 
-        main_layout.addLayout(button_layout)
+       
 
         # Abas com tabelas
         self.tabs = QTabWidget()
         main_layout.addWidget(self.tabs)
+        main_layout.addLayout(button_layout)
         self.reload_data()
    
     def exportar_tabela_atual(self):
@@ -71,6 +72,7 @@ class BibtexViewer(QMainWindow):
 
 
     def reload_data(self):
+        
         self.tabs.clear()
         try:
             metrics = analyze_bibtex()

@@ -17,7 +17,7 @@ from PyQt5.QtGui import QColor, QFont, QPixmap
 from bibref import APA2BibtexWidget 
 from PyQt5.QtGui import QIcon  # Certifique-se de importar QIcon
 from metricas import calcular_metricas, exportar_metricas_texto_para_csv
-
+from bibtexmetrics import BibtexViewer
 class GoogleSheetsViewer(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -133,18 +133,20 @@ class GoogleSheetsViewer(QMainWindow):
         url_layout = QHBoxLayout()
         url_label_text = QLabel("URL da Planilha .csv utilizada neste ambiente:")
         
-   
-        self.url_label = QLabel(
-            '<a href="https://docs.google.com/spreadsheets/d/1XuGWm_gDG5edw9YkznTQGABTBah1Ptz9lfstoFdGVbA/edit?usp=share_link">'
-            'https://docs.google.com/spreadsheets/d/1XuGWm_gDG5edw9YkznTQGABTBah1Ptz9lfstoFdGVbA/edit?usp=share_link</a>'
-        )
-        self.url_label.setOpenExternalLinks(True)
-        self.url_label.setTextInteractionFlags(Qt.TextBrowserInteraction)
-        self.url_label.setToolTip("Abrir planilha no navegador")
+        self.url_lineedit = QLineEdit()
+        self.url_lineedit.setText(self.sheet_csv_url)
+        self.url_lineedit.setToolTip("Edite este campo para usar outra planilha CSV pública")
+
+        self.refresh_button = QPushButton("🔄 Atualizar URL e Dados")
+        self.refresh_button.clicked.connect(self.refresh_data)
+
         url_layout.addWidget(url_label_text)
-        url_layout.addWidget(self.url_label)
-        url_layout.addStretch()
+        url_layout.addWidget(self.url_lineedit)
+        url_layout.addWidget(self.refresh_button)
         main_layout.addLayout(url_layout)
+
+
+
         self.tabs = QTabWidget()
         main_layout.addWidget(self.tabs)
         self.visualizador_widget = QWidget()
@@ -177,7 +179,7 @@ class GoogleSheetsViewer(QMainWindow):
         button_layout.setSpacing(10)
         self.refresh_button = QPushButton("🔄")
         self.refresh_button.clicked.connect(self.refresh_data)
-        url_layout.addWidget(self.refresh_button)
+
         self.reload_button = QPushButton("🔄 Recarregar Dados")
         self.reload_button.clicked.connect(self.load_data)
         button_layout.addWidget(self.reload_button)
@@ -194,26 +196,51 @@ class GoogleSheetsViewer(QMainWindow):
         splitter = QSplitter(Qt.Horizontal)
         splitter.addWidget(left_widget) 
         visualizador_layout.addWidget(splitter)
-        self.tabs.addTab(self.visualizador_widget, "Visualizador de Planilha")
+
         self.aba_bibtex = APA2BibtexWidget()
-        self.tabs.addTab(self.aba_bibtex, "Conversor APA → BibTeX")
         self.aba_metricas = QWidget()
+   
+
         layout_metricas = QVBoxLayout(self.aba_metricas)
+     
+
         layout_metricas.setContentsMargins(10, 10, 10, 10)
         layout_metricas.setSpacing(10)
         self.metricas_textedit = QTextEdit()
         self.metricas_textedit.setReadOnly(True)
         layout_metricas.addWidget(self.metricas_textedit)
+
         self.export_metricas_button = QPushButton("💾 Exportar Métricas para CSV")
         self.export_metricas_button.clicked.connect(self.exportar_metricas_para_csv)
         layout_metricas.addWidget(self.export_metricas_button)
-        self.tabs.addTab(self.aba_metricas, "📊 Métricas")
 
+
+        self.tabs.addTab(self.visualizador_widget, "Visualizador de Planilha")
+        self.tabs.addTab(self.aba_bibtex, "Conversor APA → BibTeX")
+        self.tabs.addTab(self.aba_metricas, " Métricas")
+
+     # --- Nova aba para o BibtexViewer ---
+        self.tab_bibtexviewer = QWidget()
+        tab_bibtexviewer_layout = QVBoxLayout()
+
+            # Instancia o BibtexViewer e adiciona na aba
+        self.bibtex_viewer = BibtexViewer()  
+        tab_bibtexviewer_layout.addWidget(self.bibtex_viewer)
+
+        self.tab_bibtexviewer.setLayout(tab_bibtexviewer_layout)
+        self.tabs.addTab(self.tab_bibtexviewer, "Bibtex Metrics Viewer")
 
 
     def refresh_data(self):
-
         try:
+            nova_url = self.url_lineedit.text().strip()
+            if nova_url:
+                self.sheet_csv_url = self.converter_para_link_csv(nova_url)
+
+            else:
+                QMessageBox.warning(self, "URL inválida", "Por favor, insira uma URL válida.")
+                return
+
             # Mostra o cursor de carregamento
             self.setCursor(Qt.WaitCursor)
             QApplication.processEvents()  # Força atualização da interface
@@ -224,8 +251,9 @@ class GoogleSheetsViewer(QMainWindow):
                 for action in self.autor_actions:
                     action.setChecked(False)
 
-            # Recarrega os dados originais
-            self.load_data()  # Chama o método que já faz o carregamento completo
+            # Recarrega os dados com a nova URL
+            self.load_data()
+          
 
             # Atualiza a interface
             self.region_label.setText("Visualizando: Geral (Todas)")
@@ -239,6 +267,17 @@ class GoogleSheetsViewer(QMainWindow):
             self.setCursor(Qt.ArrowCursor)
             QMessageBox.critical(self, "Erro", f"Erro ao resetar dados:\n{e}")
             print(f"Erro detalhado: {traceback.format_exc()}")
+
+    def converter_para_link_csv(self, url):
+        match = re.search(r"/d/([a-zA-Z0-9_-]+)", url)
+        gid_match = re.search(r"gid=([0-9]+)", url)
+        if match:
+            sheet_id = match.group(1)
+            gid = gid_match.group(1) if gid_match else "0"
+            return f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&gid={gid}"
+        else:
+            return url  # retorna como está se não for reconhecido
+
 
 
     def exportar_metricas_para_csv(self):
@@ -550,6 +589,7 @@ class GoogleSheetsViewer(QMainWindow):
                         (bg.green() + block_color.green()) // 2,
                         (bg.blue() + block_color.blue()) // 2,)
                     cell.setBackground(blended)
+                    
     def update_metrics(self):
         try:
             metricas_str = calcular_metricas(self.dataframe)

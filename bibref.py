@@ -5,11 +5,15 @@ import csv
 from pathlib import Path
 import shared_data 
 import pandas as pd
+from pathlib import Path
+import bibtexparser
+from collections import defaultdict
+import statistics
 from collections import Counter
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QLabel, QTextEdit, QPushButton,
     QVBoxLayout, QMessageBox, QDialog, QListWidget, QListWidgetItem,
-    QSplitter, QTableWidget, QTableWidgetItem,
+    QSplitter, QTableWidget, QTableWidgetItem, QLineEdit,
     QTabWidget, QHBoxLayout, QFileDialog
 )
 from PyQt5.QtCore import Qt, QStandardPaths
@@ -73,78 +77,148 @@ def extrair_autores_completos(campo_autor):
             autores_extraidos.append(autor.strip().rstrip('.'))
     return autores_extraidos
 
-class MetricsDialog(QDialog):
-    def __init__(self, autores_contagem, anos_contagem):
-        super().__init__()
-        self.setWindowTitle("Métricas de Referências")
-
-        lista_autores = QListWidget()
-        for autor, qtd in autores_contagem.most_common(10):
-            item = QListWidgetItem(f"{autor} — {qtd} ocorrência(s)")
-            lista_autores.addItem(item)
-       
-
 class APA2BibtexWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Conversor APA → BibTeX (de planilha)")
         self.initUI()
-        self.carregar_excel()  # Carrega automaticamente do Google Sheets
-        self.converter()       # Converte automaticamente
-        self.salvar_bibtex()
+       
+      #  self.carregar_excel()  # Carrega automaticamente do Google Sheets
+      #  self.converter()       # Converte automaticamente
+      #  self.salvar_bibtex()
+    def showEvent(self, event):
+        super().showEvent(event)
+        # Carrega só quando a janela aparece, e só uma vez
+        if not hasattr(self, "_loaded"):
+            self._loaded = True
+            self.carregar_excel()
 
-   
     def initUI(self):
-            main_layout = QVBoxLayout()
-            self.input_edit = QTextEdit()
+        main_layout = QVBoxLayout()
 
-            self.tabs = QTabWidget()
+        # Layout horizontal para o QLineEdit + botão lado a lado
+        h_layout = QHBoxLayout()
+        self.url_edit = QLineEdit()
+        self.url_edit.setPlaceholderText("link Google Sheets")
+        self.url_edit.setFixedWidth(400)  # Ajusta largura fixa para 400 pixels
+        self.url_padrao = "https://docs.google.com/spreadsheets/d/1XuGWm_gDG5edw9YkznTQGABTBah1Ptz9lfstoFdGVbA/export?format=csv&gid=49303292"
+        self.url_edit.setText(self.url_padrao)
+        self.bibtex_viewer = BibtexViewer()
+        self.btn_carregar_link = QPushButton("🔄")
+        self.btn_carregar_link.clicked.connect(self.carregar_excel)
+        # Label explicativa
+        h_layout.addWidget(QLabel("Link Google Sheets (coluna `Ref`, valores separados por 2 enter):"))
+        h_layout.addWidget(self.url_edit)
+        h_layout.addWidget(self.btn_carregar_link)
 
-            # Aba APA
-            self.tab_apa = QWidget()
-            tab_apa_layout = QVBoxLayout()
-            self.tabela_apa = QTableWidget()
-            self.tabela_apa.setColumnCount(3)
-            self.tabela_apa.setHorizontalHeaderLabels(["Nome", "Ano", "Referência"])
-            self.tabela_apa.setColumnWidth(2, 600)  # largura para exibir referência completa
-            tab_apa_layout.addWidget(self.tabela_apa)
-            self.btn_exportar_csv = QPushButton("Exportar CSV")
-            self.btn_exportar_csv.clicked.connect(self.exportar_csv)
-            tab_apa_layout.addWidget(self.btn_exportar_csv)
-            self.tab_apa.setLayout(tab_apa_layout)
-            self.tabs.addTab(self.tab_apa, "Visualização APA em Tabela")
+        # Adiciona o layout horizontal ao layout principal vertical
+        main_layout.addLayout(h_layout)
 
-            # Aba BibTeX
-            self.tab_bibtex = QWidget()
-            tab_bibtex_layout = QVBoxLayout()
-            tab_bibtex_layout.addWidget(QLabel("Resultado BibTeX:"))
-            self.output_edit = QTextEdit()
-            self.output_edit.setReadOnly(True)
-            tab_bibtex_layout.addWidget(self.output_edit)
-            self.btn_salvar_bibtex = QPushButton("Salvar BibTeX")
-            self.btn_salvar_bibtex.clicked.connect(self.salvar_bibtex)
-            tab_bibtex_layout.addWidget(self.btn_salvar_bibtex)
-            self.tab_bibtex.setLayout(tab_bibtex_layout)
-            self.tabs.addTab(self.tab_bibtex, "BibTeX")
+        self.input_edit = QTextEdit()
 
-            # --- Nova aba para o BibtexViewer ---
-            self.tab_bibtexviewer = QWidget()
-            tab_bibtexviewer_layout = QVBoxLayout()
+        self.tabs = QTabWidget()
 
-            # Instancia o BibtexViewer e adiciona na aba
-            self.bibtex_viewer = BibtexViewer()  
-            tab_bibtexviewer_layout.addWidget(self.bibtex_viewer)
+        # Aba APA (como antes)...
+        self.tab_apa = QWidget()
+        tab_apa_layout = QVBoxLayout()
+        self.tabela_apa = QTableWidget()
+        self.tabela_apa.setColumnCount(3)
+        self.tabela_apa.setHorizontalHeaderLabels(["Nome", "Ano", "Referência"])
+        self.tabela_apa.setColumnWidth(2, 100)
+        tab_apa_layout.addWidget(self.tabela_apa)
+        self.btn_exportar_csv = QPushButton("Exportar CSV")
+        self.btn_exportar_csv.clicked.connect(self.exportar_csv)
+        tab_apa_layout.addWidget(self.btn_exportar_csv)
+        self.tab_apa.setLayout(tab_apa_layout)
+       # self.tabs.addTab(self.tab_apa, "Visualização APA em Tabela")
 
-            self.tab_bibtexviewer.setLayout(tab_bibtexviewer_layout)
-            self.tabs.addTab(self.tab_bibtexviewer, "Bibtex Metrics Viewer")
-
-            main_layout.addWidget(self.tabs)
+        # Aba BibTeX (como antes)...
+        self.tab_bibtex = QWidget()
+        tab_bibtex_layout = QVBoxLayout()
+        tab_bibtex_layout.addWidget(QLabel("Resultado BibTeX:"))
+        self.output_edit = QTextEdit()
+        self.output_edit.setReadOnly(True)
+        tab_bibtex_layout.addWidget(self.output_edit)
+        self.btn_salvar_bibtex = QPushButton("Salvar BibTeX")
+        self.btn_salvar_bibtex.clicked.connect(self.salvar_bibtex)
+        tab_bibtex_layout.addWidget(self.btn_salvar_bibtex)
+        self.tab_bibtex.setLayout(tab_bibtex_layout)
+        self.tabs.addTab(self.tab_bibtex, "BibTeX")
 
 
-            self.setLayout(main_layout)
-            self.resize(900, 700)
 
 
+
+
+
+
+
+
+
+
+
+        # Aba Bibtex Metrics Viewer (como antes)...
+        self.tab_bibtexviewer = QWidget()
+        tab_bibtexviewer_layout = QVBoxLayout()
+        self.bibtex_viewer = BibtexViewer()  
+        tab_bibtexviewer_layout.addWidget(self.bibtex_viewer)
+        self.tab_bibtexviewer.setLayout(tab_bibtexviewer_layout)
+        self.tabs.addTab(self.tab_bibtexviewer, "Bibtex Metrics Viewer")
+
+        main_layout.addWidget(self.tabs)
+        self.setLayout(main_layout)
+        self.resize(900, 700)
+
+            
+
+    def transformar_link_para_csv(self, url):
+        match = re.search(r"/d/([a-zA-Z0-9_-]+)", url)
+        gid_match = re.search(r"gid=([0-9]+)", url)
+        if match:
+            sheet_id = match.group(1)
+            gid = gid_match.group(1) if gid_match else "0"
+            return f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&gid={gid}"
+        else:
+            return url  # retorna como está se não for reconhecido
+
+    def carregar_custom_url(self):
+            url = self.url_input.toPlainText().strip()
+            if not url:
+                QMessageBox.warning(self, "Aviso", "Por favor, insira um URL válido.")
+                return
+            try:
+                df = pd.read_csv(url)
+                if "Ref" not in df.columns:
+                    QMessageBox.critical(self, "Erro", "A coluna 'Ref' não foi encontrada na planilha.")
+                    return
+                referencias = "\n\n".join(str(ref).strip() for ref in df["Ref"] if pd.notna(ref))
+                self.input_edit.setPlainText(referencias)
+                self.converter()
+            except Exception as e:
+                QMessageBox.critical(self, "Erro", f"Erro ao ler a planilha do Google Sheets:\n{e}")
+    
+    
+    def carregar_excel(self):
+        url = self.url_edit.text().strip()
+        if not url:
+            url = self.url_padrao  # usa padrão se vazio
+
+        url_csv = self.transformar_link_para_csv(url)
+
+        try:
+            df = pd.read_csv(url_csv)
+            if "Ref" not in df.columns:
+                QMessageBox.critical(self, "Erro", "A coluna 'Ref' não foi encontrada na planilha.")
+                return
+            referencias = "\n\n".join(str(ref).strip() for ref in df["Ref"] if pd.notna(ref))
+            self.input_edit.setPlainText(referencias)
+            self.converter()
+            self.salvar_bibtex()
+            self.bibtex_viewer.reload_data()
+        except Exception as e:
+            QMessageBox.critical(self, "Erro", f"Erro ao ler a planilha do Google Sheets:\n{e}")
+        
+        
     def exportar_tabela(self, tabela):
         # Define o caminho da pasta "PYMT" na área de trabalho
         desktop = QStandardPaths.writableLocation(QStandardPaths.DesktopLocation)
@@ -192,18 +266,6 @@ class APA2BibtexWidget(QWidget):
             QMessageBox.critical(self, "Erro", f"Falha ao exportar tabela:\n{str(e)}")
 
 
-    def carregar_excel(self):
-        try:
-            url = "https://docs.google.com/spreadsheets/d/1XuGWm_gDG5edw9YkznTQGABTBah1Ptz9lfstoFdGVbA/export?format=csv&gid=49303292"
-            df = pd.read_csv(url)
-            
-            if "Ref" not in df.columns:
-                QMessageBox.critical(self, "Erro", "A coluna 'Ref' não foi encontrada na planilha.")
-                return
-            referencias = "\n\n".join(str(ref).strip() for ref in df["Ref"] if pd.notna(ref))
-            self.input_edit.setPlainText(referencias)
-        except Exception as e:
-            QMessageBox.critical(self, "Erro", f"Erro ao ler a planilha do Google Sheets:\n{e}")
 
     def converter(self):
         entrada = self.input_edit.toPlainText().strip()
@@ -252,10 +314,18 @@ class APA2BibtexWidget(QWidget):
         # Criar o dataframe final do bibtex antes de salvar
         self.df_bibtex = pd.DataFrame(lista_campos)
 
+
+
+
+
         self.output_edit.setPlainText(bibtex_total.strip())
         self.tabs.setCurrentWidget(self.tab_bibtex)
 
         shared_data.df_bibtex = self.df_bibtex
+
+
+
+
 
     def exportar_csv(self):
         desktop = QStandardPaths.writableLocation(QStandardPaths.DesktopLocation)
