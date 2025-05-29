@@ -1,5 +1,5 @@
 <h1>
-  <img src="./we.ico" alt="Project Icon" width="100" style="vertical-align: middle;"/>
+  <img src="./we.png" alt="Project Icon" width="100" style="vertical-align: middle;"/>
 SheeTeX: An Interactive Python Gadget to Simplify Bibliometric Analysis
 </h1>
 
