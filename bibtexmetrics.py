@@ -16,6 +16,7 @@ class BibtexViewer(QMainWindow):
         self.setWindowTitle("Visualizador de BibTeX")
         self.resize(1000, 600)
         self.initUI()
+        self.reload_data()
     def initUI(self):
         central_widget = QWidget()
         main_layout = QVBoxLayout()
@@ -27,8 +28,21 @@ class BibtexViewer(QMainWindow):
 
         self.update_button = QPushButton("Atualizar Tabelas")
         self.update_button.clicked.connect(self.reload_data)
-       # button_layout.addWidget(self.update_button)
-
+        button_layout.addWidget(self.update_button)
+        self.update_button.setStyleSheet("""
+            QPushButton {
+                background-color: #4CAF50;       /* Verde */
+                color: white;
+                border: 2px solid #388E3C;
+                border-radius: 30px;
+                padding: 2px 2px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #45A049;       /* Verde um pouco mais claro ao passar o mouse */
+                border-color: #2E7D32;
+            }
+        """)
         self.export_button = QPushButton("Exportar Tabela Atual")
         self.export_button.clicked.connect(self.exportar_tabela_atual)
         button_layout.addWidget(self.export_button)
@@ -77,7 +91,7 @@ class BibtexViewer(QMainWindow):
         try:
             metrics = analyze_bibtex()
         except Exception as e:
-            QMessageBox.critical(self, "Erro", f"Falha ao carregar dados: {str(e)}")
+       #    QMessageBox.critical(self, "Erro", f"Falha ao carregar dados: {str(e)}")
             return
 
         if not metrics or not metrics['publicacoes_completas']:

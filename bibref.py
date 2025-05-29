@@ -19,6 +19,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt, QStandardPaths
 from bibtexmetrics import BibtexViewer
 
+
 def extrair_campos_apa(texto):
     campos = {
         'author': '', 'year': '', 'title': '',
@@ -85,7 +86,7 @@ class APA2BibtexWidget(QWidget):
        
       #  self.carregar_excel()  # Carrega automaticamente do Google Sheets
       #  self.converter()       # Converte automaticamente
-      #  self.salvar_bibtex()
+        self.salvar_bibtex()
     def showEvent(self, event):
         super().showEvent(event)
         # Carrega só quando a janela aparece, e só uma vez
@@ -100,7 +101,7 @@ class APA2BibtexWidget(QWidget):
         h_layout = QHBoxLayout()
         self.url_edit = QLineEdit()
         self.url_edit.setPlaceholderText("link Google Sheets")
-        self.url_edit.setFixedWidth(400)  # Ajusta largura fixa para 400 pixels
+        self.url_edit.setFixedWidth(600)  # Ajusta largura fixa para 400 pixels
         self.url_padrao = "https://docs.google.com/spreadsheets/d/1XuGWm_gDG5edw9YkznTQGABTBah1Ptz9lfstoFdGVbA/export?format=csv&gid=49303292"
         self.url_edit.setText(self.url_padrao)
         self.bibtex_viewer = BibtexViewer()
@@ -370,7 +371,7 @@ class APA2BibtexWidget(QWidget):
         conteudo_bibtex = self.output_edit.toPlainText().strip()
 
         if not conteudo_bibtex:
-            QMessageBox.warning(self, "Aviso", "Não há conteúdo BibTeX para salvar.")
+       #     QMessageBox.warning(self, "Aviso", "Não há conteúdo BibTeX para salvar.")
             return
 
         # Caminho para a Área de Trabalho
