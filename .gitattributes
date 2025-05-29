@@ -1,3 +1,4 @@
 # Auto detect text files and perform LF normalization
 * text=auto
 SheeTex.app filter=lfs diff=lfs merge=lfs -text
+SheeTex.app/Contents/MacOS/sheet filter=lfs diff=lfs merge=lfs -text
