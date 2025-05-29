@@ -9,6 +9,10 @@ import bibtexparser
 from collections import defaultdict
 import statistics
 import sys
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
+import numpy as np
 
 class BibtexViewer(QMainWindow):
     def __init__(self):
@@ -54,7 +58,114 @@ class BibtexViewer(QMainWindow):
         main_layout.addWidget(self.tabs)
         main_layout.addLayout(button_layout)
         self.reload_data()
-   
+    def create_plots_tab_with_subtabs(self, metrics):
+        widget = QWidget()
+        layout = QVBoxLayout()
+        widget.setLayout(layout)
+
+        # Botão para exportar gráfico ativo
+        export_plot_button = QPushButton("Exportar Gráfico Atual")
+        layout.addWidget(export_plot_button, alignment=Qt.AlignRight)
+
+        subtabs = QTabWidget()
+        layout.addWidget(subtabs)
+
+        def create_canvas():
+            fig = Figure(figsize=(6,4))
+            canvas = FigureCanvas(fig)
+            return fig, canvas
+
+        self.figures = {}
+
+        # Gráfico 1: Publicações por Ano
+        fig1, canvas1 = create_canvas()
+        ax1 = fig1.add_subplot(111)
+        anos = [int(x[0]) for x in metrics['publicacoes_por_ano']]
+        quantidades = [x[1] for x in metrics['publicacoes_por_ano']]
+        ax1.plot(anos, quantidades, marker='o')
+        ax1.set_title("Publicações por Ano")
+        ax1.set_xlabel("Ano")
+        ax1.set_ylabel("Quantidade")
+        ax1.grid(True)
+        tab1 = QWidget()
+        l1 = QVBoxLayout(tab1)
+        l1.addWidget(canvas1)
+        subtabs.addTab(tab1, "Por Ano")
+        self.figures["Por Ano"] = fig1
+
+        # Gráfico 3: Autores mais frequentes (top 10)
+        fig3, canvas3 = create_canvas()
+        ax3 = fig3.add_subplot(111)
+        top_autores = metrics['autores_completos'][:10]
+        autores = [x[0] for x in top_autores]
+        pubs = [x[1] for x in top_autores]
+        y_pos = np.arange(len(autores))
+        ax3.barh(y_pos, pubs, color='lightgreen')
+        ax3.set_yticks(y_pos)
+        ax3.set_yticklabels(autores)
+        ax3.invert_yaxis()
+        ax3.set_title("Top 10 Autores")
+        ax3.set_xlabel("Número de Publicações")
+        tab3 = QWidget()
+        l3 = QVBoxLayout(tab3)
+        l3.addWidget(canvas3)
+        subtabs.addTab(tab3, "Autores")
+        self.figures["Autores"] = fig3
+
+        # Gráfico 4: Publicações por Década (pizza)
+        fig4, canvas4 = create_canvas()
+        ax4 = fig4.add_subplot(111)
+        decadas = [x[0] for x in metrics['decadas']]
+        dec_qtd = [x[1] for x in metrics['decadas']]
+        ax4.pie(dec_qtd, labels=decadas, autopct='%1.1f%%', startangle=140)
+        ax4.set_title("Publicações por Década")
+        tab4 = QWidget()
+        l4 = QVBoxLayout(tab4)
+        l4.addWidget(canvas4)
+        subtabs.addTab(tab4, "Décadas")
+        self.figures["Décadas"] = fig4
+
+        self.tabs.addTab(widget, "Gráficos")
+
+        # Agora conectamos o botão à função de exportação
+        export_plot_button.clicked.connect(self.export_current_plot)
+
+    def export_current_plot(self):
+        # Pega a aba de gráficos (assumindo que é a última aba adicionada)
+        
+
+        widget = self.tabs.widget(self.tabs.count() - 1)
+        if widget is None:
+            QMessageBox.warning(self, "Erro", "Nenhum gráfico disponível para exportar.")
+            return
+
+        subtabs = widget.findChild(QTabWidget)
+        if subtabs is None:
+            QMessageBox.warning(self, "Erro", "Sub-abas de gráfico não encontradas.")
+            return
+
+        current_tab_name = subtabs.tabText(subtabs.currentIndex())
+        
+        fig = self.figures.get(current_tab_name, None)
+        if fig is None:
+            QMessageBox.warning(self, "Erro", "Não foi possível encontrar o gráfico para exportar.")
+            return
+
+        save_folder = Path.home() / "Desktop" / "PYMT"
+        save_folder.mkdir(parents=True, exist_ok=True)  # cria a pasta se não existir
+
+        n = 1
+        while True:
+            file_path = save_folder / f"PYMT_plot({n}).png"
+            if not file_path.exists():
+                break
+            n += 1
+
+        fig.savefig(str(file_path), dpi=300)
+
+        QMessageBox.information(self, "Sucesso", f"Gráfico salvo em:\n{file_path}")
+
+        
     def exportar_tabela_atual(self):
         index = self.tabs.currentIndex()
         if index == -1:
@@ -85,6 +196,7 @@ class BibtexViewer(QMainWindow):
             QMessageBox.critical(self, "Erro", f"Erro ao exportar CSV:\n{e}")
 
 
+
     def reload_data(self):
         
         self.tabs.clear()
@@ -111,6 +223,8 @@ class BibtexViewer(QMainWindow):
         self.create_table_tab("Estatísticas gerais", metrics['estatisticas_gerais'],
                               ["Métrica", "Valor"])
 
+        self.create_plots_tab_with_subtabs(metrics)
+
     def create_table_tab(self, title, data, headers):
         widget = QWidget()
         layout = QVBoxLayout()
@@ -118,19 +232,82 @@ class BibtexViewer(QMainWindow):
         layout.addWidget(table)
         widget.setLayout(layout)
 
-        table.setRowCount(len(data))
-        table.setColumnCount(len(headers))
+        if title == "Publicações por ano":
+            headers.append("Média por ano em 5 anos")
+            table.setColumnCount(len(headers))
+            table.setRowCount(len(data))
+
+            valores = [int(row[1]) for row in data]
+            anos = [str(row[0]) for row in data]
+
+            for row_idx, row_data in enumerate(data):
+                for col_idx, value in enumerate(row_data):
+                    item = QTableWidgetItem(str(value))
+                    item.setFlags(item.flags() ^ Qt.ItemIsEditable)
+                    table.setItem(row_idx, col_idx, item)
+
+                # Calcular média a cada 5 linhas ou no fim
+                is_final_row = row_idx == len(data) - 1
+                if row_idx % 5 == 4 or is_final_row:
+                    start_idx = row_idx - 4 if row_idx >= 4 else 0
+                    end_idx = row_idx
+                    subset = valores[start_idx:end_idx + 1]
+                    intervalo_anos = f"{anos[start_idx]}–{anos[end_idx]}"
+                    media_valor = round(sum(subset) / len(subset), 1)
+                    texto_media = f"{intervalo_anos} → {media_valor}"
+
+                    media_item = QTableWidgetItem(texto_media)
+                    media_item.setFlags(media_item.flags() ^ Qt.ItemIsEditable)
+                
+                    table.setItem(row_idx, 2, media_item)
+                else:
+                    table.setItem(row_idx, 2, QTableWidgetItem(""))
+
+        elif title == "Publicações por década":
+            headers.append("Média")
+            table.setColumnCount(len(headers))
+            table.setRowCount(len(data) + 1)  # +1 para linha da média geral
+
+            # Extrair quantidades para cálculo da média
+            valores = [int(row[1]) for row in data]
+
+            # Preencher dados normais
+            for row_idx, row_data in enumerate(data):
+                for col_idx, value in enumerate(row_data):
+                    item = QTableWidgetItem(str(value))
+                    item.setFlags(item.flags() ^ Qt.ItemIsEditable)
+                    table.setItem(row_idx, col_idx, item)
+
+            # Calcular média geral
+            media_geral = round(sum(valores) / len(valores), 2) if valores else 0
+
+            # Linha extra para mostrar a média
+            media_text_item = QTableWidgetItem("Média geral")
+            media_text_item.setFlags(media_text_item.flags() ^ Qt.ItemIsEditable)
+            table.setItem(len(data), 0, media_text_item)
+
+            media_valor_item = QTableWidgetItem(str(media_geral))
+            media_valor_item.setFlags(media_valor_item.flags() ^ Qt.ItemIsEditable)
+            table.setItem(len(data), len(headers)-1, media_valor_item)
+
+            # Preencher as células vazias da média na coluna média com "-"
+            for row_idx in range(len(data)):
+                table.setItem(row_idx, len(headers)-1, QTableWidgetItem("-"))
+
+        else:
+            table.setRowCount(len(data))
+            table.setColumnCount(len(headers))
+            table.setHorizontalHeaderLabels(headers)
+
+            for row_idx, row_data in enumerate(data):
+                for col_idx, value in enumerate(row_data):
+                    item = QTableWidgetItem(str(value))
+                    item.setFlags(item.flags() ^ Qt.ItemIsEditable)
+                    table.setItem(row_idx, col_idx, item)
+
         table.setHorizontalHeaderLabels(headers)
-
-        for row_idx, row_data in enumerate(data):
-            for col_idx, value in enumerate(row_data):
-                item = QTableWidgetItem(str(value))
-                item.setFlags(item.flags() ^ Qt.ItemIsEditable)
-                table.setItem(row_idx, col_idx, item)
-
         table.resizeColumnsToContents()
         self.tabs.addTab(widget, title)
-
 
 def analyze_bibtex():
     input_file = Path.home() / "Desktop/PYMT/references.bib"
@@ -180,6 +357,32 @@ def analyze_bibtex():
     def dict_to_sorted_list(d, key_format=str):
         return [[key_format(k), v] for k, v in sorted(d.items())]
 
+    # Agrupamento de publicações por intervalo de 5 anos
+    publicacoes_por_5anos = defaultdict(int)
+    publicacoes_5anos_lista = []
+
+    if anos:
+        min_ano = min(anos)
+        max_ano = max(anos)
+        for ano in anos:
+            inicio_intervalo = (ano // 5) * 5
+            fim_intervalo = inicio_intervalo + 4
+            chave_intervalo = f"{inicio_intervalo}-{fim_intervalo}"
+            publicacoes_por_5anos[chave_intervalo] += 1
+
+        # Ordenar os intervalos
+        publicacoes_5anos_lista = sorted(
+            [[intervalo, qtd] for intervalo, qtd in publicacoes_por_5anos.items()],
+            key=lambda x: int(x[0].split("-")[0])
+        )
+
+        media_5anos = round(statistics.mean(publicacoes_por_5anos.values()), 2)
+    else:
+        media_5anos = "N/A"
+
+
+
+
     result = {
         'publicacoes_completas': metrics['publicacoes_completas'],
         'publicacoes_por_ano': dict_to_sorted_list(metrics['publicacoes_por_ano'], int),
@@ -192,9 +395,9 @@ def analyze_bibtex():
             ["Anos distintos", len(set(anos))],
             ["Ano mais antigo", min(anos) if anos else "N/A"],
             ["Ano mais recente", max(anos) if anos else "N/A"],
-            ["Média de publicações por ano", round(statistics.mean(metrics['publicacoes_por_ano'].values()), 2) if anos else "N/A"],
-            ["Mediana de publicações por ano", statistics.median(metrics['publicacoes_por_ano'].values()) if anos else "N/A"],
-        ]
+       
+        ],
+        'publicacoes_por_5anos': publicacoes_5anos_lista
     }
 
     return result

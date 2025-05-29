@@ -19,6 +19,64 @@ from PyQt5.QtGui import QIcon  # Certifique-se de importar QIcon
 from metricas import calcular_metricas, exportar_metricas_texto_para_csv
 from bibtexmetrics import BibtexViewer
 
+def extrair_campos_apa(texto):
+    campos = {
+        'author': '', 'year': '', 'title': '',
+        'journal': '', 'booktitle': '', 'number': '',
+        'pages': '', 'doi': ''
+    }
+    texto = ' '.join(texto.split())
+    match_ano = re.search(r'\((\d{4})\)', texto)
+    if not match_ano:
+        return campos
+    campos['year'] = match_ano.group(1)
+    inicio_ano = match_ano.start()
+    fim_ano = match_ano.end()
+    campos['author'] = texto[:inicio_ano].strip().rstrip('.')
+    depois = texto[fim_ano:].strip()
+    match_titulo = re.match(r'(.+?)\.\s+(.*)', depois)
+    if not match_titulo:
+        return campos
+    campos['title'] = match_titulo.group(1).strip()
+    resto = match_titulo.group(2)
+    if ' In ' in resto or resto.startswith('In '):
+        match_in = re.search(r'\bIn\b (.+?)(?:\.|$)', resto)
+        if match_in:
+            campos['booktitle'] = match_in.group(1).strip()
+        match_paginas = re.search(r'\(pp\.\s*(\d+-\d+)\)', texto)
+        if match_paginas:
+            campos['pages'] = match_paginas.group(1)
+    else:
+        match_journal = re.match(r'([^.]+)\. (.+)', resto)
+        if match_journal:
+            campos['journal'] = match_journal.group(1).strip()
+            resto = match_journal.group(2)
+    match_number = re.search(r'(\d+\s*\(\d+\))', resto)
+    if match_number:
+        campos['number'] = match_number.group(1)
+    match_pages = re.search(r'(\d{1,4}-\d{1,4})', resto)
+    if match_pages:
+        campos['pages'] = match_pages.group(1)
+    match_doi = re.search(r'(10\.\d{4,9}/[-._;()/:A-Z0-9]+)', texto, re.IGNORECASE)
+    if match_doi:
+        campos['doi'] = match_doi.group(1)
+    return campos
+
+def extrair_autores_completos(campo_autor):
+    possiveis_autores = re.split(r';|\.\s+', campo_autor)
+    autores_extraidos = []
+    for autor in possiveis_autores:
+        autor = autor.strip()
+        if not autor:
+            continue
+        match = re.match(r'([A-Z][a-zA-ZÀ-ÿ\-]+),\s*([A-Z][a-zA-ZÀ-ÿ\-. ]+)', autor)
+        if match:
+            nome = match.group(0).strip().rstrip('.')
+            autores_extraidos.append(nome)
+        else:
+            autores_extraidos.append(autor.strip().rstrip('.'))
+    return autores_extraidos
+
 class GoogleSheetsViewer(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -30,8 +88,13 @@ class GoogleSheetsViewer(QMainWindow):
 "https://docs.google.com/spreadsheets/d/1XuGWm_gDG5edw9YkznTQGABTBah1Ptz9lfstoFdGVbA/export?format=csv&gid=49303292")
         self.dataframe = pd.DataFrame()
         self.selected_region = None
+        
         self.init_ui()
         self.load_data()
+        self.refresh_data()
+
+       
+
 
     def export_authors_affiliations(self):
         if self.dataframe.empty:
@@ -123,8 +186,8 @@ class GoogleSheetsViewer(QMainWindow):
         except Exception as e:
             QMessageBox.critical(self, "Erro", f"Erro ao salvar arquivo:\n{e}")
     def init_ui(self):
-       
-
+        
+        
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
         
@@ -225,82 +288,147 @@ class GoogleSheetsViewer(QMainWindow):
         tab_bibtexviewer_layout = QVBoxLayout()
 
             # Instancia o BibtexViewer e adiciona na aba
-        self.bibtex_viewer = BibtexViewer()  
+        self.bibtex_viewer = APA2BibtexWidget()  
         tab_bibtexviewer_layout.addWidget(self.bibtex_viewer)
 
         self.tab_bibtexviewer.setLayout(tab_bibtexviewer_layout)
         self.tabs.addTab(self.tab_bibtexviewer, "Bibtex Metrics Viewer")
 
+        # Aba APA -> Bibtex
         self.aba_apa_bibtex = QWidget()
         layout_apa_bibtex = QVBoxLayout(self.aba_apa_bibtex)
 
-        # Widget para converter APA -> Bibtex
-        self.apa2bibtex_widget = APA2BibtexWidget()
-        layout_apa_bibtex.addWidget(self.apa2bibtex_widget)
+        # Texto com referências APA (editável)
+        self.apa_textedit = QTextEdit()
+        self.apa_textedit.setPlaceholderText("Aqui aparecerão as referências no formato APA extraídas do DataFrame...")
+        layout_apa_bibtex.addWidget(QLabel("Referências em APA:"))
+        self.apa_textedit.setFixedHeight(100)
 
-        # Botão para carregar referências APA do dataframe e converter
-        self.btn_load_apa = QPushButton("Carregar referências APA do dataframe e converter para Bibtex")
-        self.btn_load_apa.clicked.connect(self.carregar_referencias_apa_para_bibtex)
-        layout_apa_bibtex.addWidget(self.btn_load_apa)
+        layout_apa_bibtex.addWidget(self.apa_textedit)
 
-        self.tabs.addTab(self.aba_apa_bibtex, "APA -> Bibtex")
-    def carregar_referencias_apa_para_bibtex(self):
-            if self.dataframe.empty:
-                QMessageBox.warning(self, "Aviso", "O dataframe está vazio. Carregue os dados antes.")
-                return
+        # Botão para converter APA para BibTeX
+        self.converter_button = QPushButton("Converter APA para BibTeX")
+        self.converter_button.clicked.connect(self.converter_apa_para_bibtex)
+        layout_apa_bibtex.addWidget(self.converter_button)
 
-            if "Ref" not in self.dataframe.columns:
-                QMessageBox.warning(self, "Aviso", "A coluna 'Ref' com referências APA não foi encontrada no dataframe.")
-                return
+        # Texto para mostrar BibTeX convertido
+        self.bibtex_textedit = QTextEdit()
+        self.bibtex_textedit.setReadOnly(True)
+        layout_apa_bibtex.addWidget(QLabel("Referências em BibTeX:"))
+        layout_apa_bibtex.addWidget(self.bibtex_textedit)
 
-            # Extrair referências APA da coluna 'Ref', concatenar com quebras de linha para enviar ao widget
-            referencias_apa = "\n\n".join(str(ref) for ref in self.dataframe["Ref"].dropna())
+        # Botão para copiar BibTeX para área de transferência
+        self.copiar_bibtex_button = QPushButton(" Salvar BibTeX")
+        self.copiar_bibtex_button.clicked.connect(self.salvar_bibtex)
+        layout_apa_bibtex.addWidget(self.copiar_bibtex_button)
 
-            # Passar para o widget para conversão automática
-            self.apa2bibtex_widget.set_text_apa(referencias_apa)
+      #  self.tabs.addTab(self.aba_apa_bibtex, "APA -> BibTeX")
+        self.refresh_data()
+        
+    def atualizar_apa_textedit(self):
+        # Função para carregar as referências APA da coluna no DataFrame e mostrar no QTextEdit
+        if self.dataframe.empty:
+            self.apa_textedit.setPlainText("Nenhum dado carregado.")
+            return
+        if "Ref" not in self.dataframe.columns:
+            self.apa_textedit.setPlainText("Coluna 'Ref' não encontrada no DataFrame.")
+            return
+        
+        
 
-            # A conversão geralmente é automática no widget, mas se precisar, pode chamar método para converter:
-            # self.apa2bibtex_widget.convert_apa_to_bibtex()
+    def converter_apa_para_bibtex(self):
+        apa_text = self.apa_textedit.toPlainText().strip()
+        if not apa_text:
+            QMessageBox.warning(self, "Aviso", "Texto APA vazio para conversão.")
+            return
 
-            QMessageBox.information(self, "Sucesso", "Referências APA carregadas e convertidas para Bibtex.")
+        # Separar referências por enter duplo
+        entradas = re.split(r'\n{2,}', apa_text)
+
+        referencias_separadas = []
+        for entrada in entradas:
+            partes = [r.strip() for r in entrada.split('\n\n') if r.strip()]
+            referencias_separadas.extend(partes)
+
+        bibtex_total = ""
+        for idx, entrada_individual in enumerate(referencias_separadas, 1):
+            campos = extrair_campos_apa(entrada_individual)
+
+            # Gerar chave BibTeX (por exemplo, usando autor e ano se disponíveis)
+            autor = campos.get("author", f"autor{idx}").split(",")[0].replace(" ", "")
+            ano = campos.get("year", "0000")
+            chave = f"ref{idx}"
+
+
+            # Montar entrada BibTeX
+            bibtex = f"@article{{{chave},\n"
+            for campo, valor in campos.items():
+                if valor:
+                    bibtex += f"  {campo} = {{{valor}}},\n"
+            bibtex += f"  note = {{{entrada_individual.strip()}}}\n}}\n\n"
+            bibtex_total += bibtex
+
+        self.bibtex_textedit.setPlainText(bibtex_total.strip())
+
+
+    def salvar_bibtex(self):
+        texto = self.bibtex_textedit.toPlainText()
+        if not texto:
+            QMessageBox.warning(self, "Aviso", "Nenhum texto BibTeX para salvar.")
+            return
+
+        # Caminho para a pasta Desktop/PYMT
+        pasta_destino = os.path.join(os.path.expanduser("~"), "Desktop", "PYMT")
+        os.makedirs(pasta_destino, exist_ok=True)
+
+        caminho_arquivo = os.path.join(pasta_destino, "references.bib")
+
+        try:
+            with open(caminho_arquivo, "w", encoding="utf-8") as f:
+                f.write(texto)
+           # QMessageBox.information(self, "Salvo", f"BibTeX salvo em:\n{caminho_arquivo}")
+        except Exception as e:
+            QMessageBox.critical(self, "Erro", f"Erro ao salvar o arquivo:\n{str(e)}")
 
 
     def refresh_data(self):
         try:
             nova_url = self.url_lineedit.text().strip()
-            if nova_url:
-                self.sheet_csv_url = self.converter_para_link_csv(nova_url)
-
-            else:
+            if not nova_url:
                 QMessageBox.warning(self, "URL inválida", "Por favor, insira uma URL válida.")
                 return
+            
+            # Converte para link CSV, atualiza atributo
+            self.sheet_csv_url = self.converter_para_link_csv(nova_url)
 
-            # Mostra o cursor de carregamento
+            # Mostra cursor de carregamento e atualiza UI
             self.setCursor(Qt.WaitCursor)
-            QApplication.processEvents()  # Força atualização da interface
+            QApplication.processEvents()
 
-            # Reseta todos os filtros e seleções
+            # Reseta filtros e seleções
             self.selected_region = None
             if hasattr(self, 'autor_actions'):
                 for action in self.autor_actions:
                     action.setChecked(False)
 
-            # Recarrega os dados com a nova URL
+            # Recarrega dados a partir da URL atualizada
             self.load_data()
-          
 
-            # Atualiza a interface
+            # Atualiza elementos da interface com novos dados
             self.region_label.setText("Visualizando: Geral (Todas)")
             self.populate_table()
             self.update_metrics()
 
-            # Restaura o cursor normal
-            self.setCursor(Qt.ArrowCursor)
+   
 
         except Exception as e:
-            self.setCursor(Qt.ArrowCursor)
             QMessageBox.critical(self, "Erro", f"Erro ao resetar dados:\n{e}")
             print(f"Erro detalhado: {traceback.format_exc()}")
+
+        finally:
+            # Garante que o cursor volte ao normal mesmo em erro
+            self.setCursor(Qt.ArrowCursor)
+
 
     def converter_para_link_csv(self, url):
         match = re.search(r"/d/([a-zA-Z0-9_-]+)", url)
@@ -340,8 +468,8 @@ class GoogleSheetsViewer(QMainWindow):
     def load_data(self):
         try:
             df = pd.read_csv(self.sheet_csv_url)
-
             
+            self.atualizar_apa_textedit() 
             df = self.expand_ref_column(df)
             df = self.expand_authors_column(df)
             df = self.expand_affiliations_column(df)
