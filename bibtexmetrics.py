@@ -32,7 +32,7 @@ class BibtexViewer(QMainWindow):
 
         self.update_button = QPushButton("Atualizar Tabelas")
         self.update_button.clicked.connect(self.reload_data)
-        button_layout.addWidget(self.update_button)
+        #button_layout.addWidget(self.update_button)
         self.update_button.setStyleSheet("""
             QPushButton {
                 background-color: #4CAF50;       /* Verde */

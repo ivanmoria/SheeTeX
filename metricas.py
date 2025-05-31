@@ -189,36 +189,17 @@ def exportar_metricas_texto_para_csv(texto: str):
         except Exception as e:
             print(f"Erro ao salvar arquivo: {e}")
 
-def calcular_metricas_com_estatisticas_e_graficos(df: pd.DataFrame, plotar=True) -> str:
-    """
-    Calcula métricas categóricas + estatísticas numéricas (únicas por Num)
-    e plota gráficos (histograma, boxplot e soma) das colunas numéricas.
-    Retorna o texto resumo com as estatísticas.
-    """
-    resumo = calcular_metricas(df)
-
-    if 'Num' not in df.columns:
-        return resumo + "\n\n❌ Coluna 'Num' não encontrada para cálculo de estatísticas numéricas."
-
-    df_unicos = df.drop_duplicates(subset=['Num'])
-    colunas_num = df_unicos.select_dtypes(include='number').columns.tolist()
-
-    if not colunas_num:
-        return resumo + "\n\n❌ Não há colunas numéricas para calcular estatísticas."
-
-    stats = df_unicos[colunas_num].agg(['count', 'nunique', 'mean', 'std', 'min', 'max', 'sum']).transpose()
-    stats.rename(columns={
-        'count': 'Quantidade',
-        'nunique': 'Valores Únicos',
-        'mean': 'Média',
-        'std': 'Desvio Padrão',
-        'min': 'Mínimo',
-        'max': 'Máximo',
-        'sum': 'Soma'
-    }, inplace=True)
-
-    texto_estatisticas = "\n\n📈 Estatísticas Descritivas das Métricas Numéricas (únicos por Num):\n"
-    texto_estatisticas += stats.to_string()
 
 
-    return resumo + texto_estatisticas
+def calcular_metricas_detalhadas(dataframe):
+    if dataframe.empty or "Ref" not in dataframe.columns:
+        return "⚠️ Nenhum dado carregado ou coluna 'Ref' inexistente."
+
+    texto = ""
+    for celula in dataframe["Ref"].dropna():
+        texto += str(celula) + "\n"
+
+    if not texto:
+        texto = "Nenhuma referência encontrada."
+
+    return texto

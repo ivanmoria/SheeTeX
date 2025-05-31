@@ -1,101 +1,227 @@
 import sys
 import re
 import time
-
 import os
+
+from config import sheet_csv_url
 import traceback
 import pandas as pd
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout,
     QTableWidget, QTableWidgetItem,QSplashScreen, QPushButton, QMessageBox,
     QFileDialog, QHBoxLayout, QMenuBar, QLabel, QAction,QLineEdit,
-    QTextEdit, QSplitter, QTabWidget
-)
+    QTextEdit, QSplitter, QTabWidget)
 from PyQt5.QtCore import Qt, QTimer, QStandardPaths
-
-from PyQt5.QtGui import QColor, QFont, QPixmap
+from PyQt5.QtGui import QColor, QFont, QPixmap, QIcon
+from processador_referencias import extrair_campos_apa, extrair_autores_completos
 from bibref import APA2BibtexWidget 
-from PyQt5.QtGui import QIcon  # Certifique-se de importar QIcon
-from metricas import calcular_metricas, exportar_metricas_texto_para_csv
+from metricas import calcular_metricas,  exportar_metricas_texto_para_csv, calcular_metricas_detalhadas
 from bibtexmetrics import BibtexViewer
-
-def extrair_campos_apa(texto):
-    campos = {
-        'author': '', 'year': '', 'title': '',
-        'journal': '', 'booktitle': '', 'number': '',
-        'pages': '', 'doi': ''
-    }
-    texto = ' '.join(texto.split())
-    match_ano = re.search(r'\((\d{4})\)', texto)
-    if not match_ano:
-        return campos
-    campos['year'] = match_ano.group(1)
-    inicio_ano = match_ano.start()
-    fim_ano = match_ano.end()
-    campos['author'] = texto[:inicio_ano].strip().rstrip('.')
-    depois = texto[fim_ano:].strip()
-    match_titulo = re.match(r'(.+?)\.\s+(.*)', depois)
-    if not match_titulo:
-        return campos
-    campos['title'] = match_titulo.group(1).strip()
-    resto = match_titulo.group(2)
-    if ' In ' in resto or resto.startswith('In '):
-        match_in = re.search(r'\bIn\b (.+?)(?:\.|$)', resto)
-        if match_in:
-            campos['booktitle'] = match_in.group(1).strip()
-        match_paginas = re.search(r'\(pp\.\s*(\d+-\d+)\)', texto)
-        if match_paginas:
-            campos['pages'] = match_paginas.group(1)
-    else:
-        match_journal = re.match(r'([^.]+)\. (.+)', resto)
-        if match_journal:
-            campos['journal'] = match_journal.group(1).strip()
-            resto = match_journal.group(2)
-    match_number = re.search(r'(\d+\s*\(\d+\))', resto)
-    if match_number:
-        campos['number'] = match_number.group(1)
-    match_pages = re.search(r'(\d{1,4}-\d{1,4})', resto)
-    if match_pages:
-        campos['pages'] = match_pages.group(1)
-    match_doi = re.search(r'(10\.\d{4,9}/[-._;()/:A-Z0-9]+)', texto, re.IGNORECASE)
-    if match_doi:
-        campos['doi'] = match_doi.group(1)
-    return campos
-
-def extrair_autores_completos(campo_autor):
-    possiveis_autores = re.split(r';|\.\s+', campo_autor)
-    autores_extraidos = []
-    for autor in possiveis_autores:
-        autor = autor.strip()
-        if not autor:
-            continue
-        match = re.match(r'([A-Z][a-zA-ZÀ-ÿ\-]+),\s*([A-Z][a-zA-ZÀ-ÿ\-. ]+)', autor)
-        if match:
-            nome = match.group(0).strip().rstrip('.')
-            autores_extraidos.append(nome)
-        else:
-            autores_extraidos.append(autor.strip().rstrip('.'))
-    return autores_extraidos
-
+from bib import     processar_entrada_bibtex, processar_visualizacao_formatada, processar_estatisticas_bibtex
 class GoogleSheetsViewer(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowIcon(QIcon("we.icns")) 
         self.setWindowTitle("Visualizador de Planilha Google")
         self.setGeometry(100, 100, 1100, 700)
-
         self.sheet_csv_url = (
 "https://docs.google.com/spreadsheets/d/1XuGWm_gDG5edw9YkznTQGABTBah1Ptz9lfstoFdGVbA/export?format=csv&gid=49303292")
         self.dataframe = pd.DataFrame()
         self.selected_region = None
-        
         self.init_ui()
         self.load_data()
         self.refresh_data()
 
-       
+        self.visualizacao_bibtex_widget.carregar_excel()
 
 
+        self.estatisticas_bibtex_widget.reload_data()
+            
+    def init_ui(self):
+        # --- Widget central e layout principal ---
+        self.central_widget = QWidget()
+        self.setCentralWidget(self.central_widget)
+        main_layout = QVBoxLayout(self.central_widget)
+        main_layout.setContentsMargins(10, 10, 10, 10)
+        main_layout.setSpacing(10)
+
+        # --- Linha para URL da planilha CSV ---
+        url_layout = QHBoxLayout()
+        url_label_text = QLabel("URL da Planilha .csv utilizada neste ambiente:")
+
+        self.url_lineedit = QLineEdit()
+        self.url_lineedit.setText(self.sheet_csv_url)
+        self.url_lineedit.setToolTip("Edite este campo para usar outra planilha CSV pública")
+
+        self.refresh_button = QPushButton("🔄 Atualizar URL e Dados")
+        self.refresh_button.clicked.connect(self.refresh_data)
+
+        url_layout.addWidget(url_label_text)
+        url_layout.addWidget(self.url_lineedit)
+        url_layout.addWidget(self.refresh_button)
+        main_layout.addLayout(url_layout)
+
+        # --- Abas principais ---
+        self.tabs = QTabWidget()
+        main_layout.addWidget(self.tabs)
+
+        # === Aba: Visualizador de Planilha ===
+        self.visualizador_widget = QWidget()
+        visualizador_layout = QHBoxLayout(self.visualizador_widget)
+        visualizador_layout.setContentsMargins(0, 0, 0, 0)
+        visualizador_layout.setSpacing(5)
+
+        # --- Menu de filtros ---
+        menubar = QMenuBar(self)
+        self.setMenuBar(menubar)
+        self.region_menu = menubar.addMenu("Filtrar por Região")
+        self.author_menu = menubar.addMenu("Filtrar por Autor")
+
+        # --- Painel esquerdo do visualizador ---
+        left_widget = QWidget()
+        left_layout = QVBoxLayout(left_widget)
+        left_layout.setContentsMargins(0, 0, 0, 0)
+        left_layout.setSpacing(5)
+
+        self.region_label = QLabel("Visualizando: Geral (Todas)")
+        self.region_label.setContentsMargins(0, 0, 0, 0)
+        left_layout.addWidget(self.region_label)
+
+        self.metrics_label = QLabel("")
+        self.metrics_label.setStyleSheet("font-style: italic; color: gray;")
+        self.metrics_label.setContentsMargins(0, 0, 0, 0)
+        left_layout.addWidget(self.metrics_label)
+
+        # --- Tabela de dados ---
+        self.table = QTableWidget()
+        self.table.verticalHeader().setVisible(False)
+        self.table.setAlternatingRowColors(True)
+        self.table.setSortingEnabled(False)
+        self.table.setSelectionBehavior(QTableWidget.SelectItems)
+        self.table.horizontalHeader().setStretchLastSection(True)
+        left_layout.addWidget(self.table)
+
+        # --- Botões de ação ---
+        button_layout = QHBoxLayout()
+        button_layout.setSpacing(10)
+
+        self.refresh_button = QPushButton("🔄")
+        self.refresh_button.clicked.connect(self.refresh_data)
+        button_layout.addWidget(self.refresh_button)
+
+        self.reload_button = QPushButton("🔄 Recarregar Dados")
+        self.reload_button.clicked.connect(self.load_data)
+        button_layout.addWidget(self.reload_button)
+
+        self.export_button = QPushButton("📀 Exportar CSV")
+        self.export_button.clicked.connect(self.export_to_csv)
+        button_layout.addWidget(self.export_button)
+
+        self.export_authors_button = QPushButton("📥 Exportar Autores + Afiliações")
+        self.export_authors_button.clicked.connect(self.export_authors_affiliations)
+        button_layout.addWidget(self.export_authors_button)
+
+        self.export_refs_button = QPushButton("📜 Exportar Referências Completas")
+        self.export_refs_button.clicked.connect(self.export_full_references)
+        button_layout.addWidget(self.export_refs_button)
+
+        left_layout.addLayout(button_layout)
+
+        # --- Divisor para visualização lateral ---
+        splitter = QSplitter(Qt.Horizontal)
+        splitter.addWidget(left_widget)
+        visualizador_layout.addWidget(splitter)
+
+        self.tabs.addTab(self.visualizador_widget, "Visualizador de Planilha")
+
+        # === Aba: Métricas ===
+        # === Aba: Métricas com subabas ===
+        self.aba_metricas = QWidget()
+        layout_metricas = QVBoxLayout(self.aba_metricas)
+        layout_metricas.setContentsMargins(10, 10, 10, 10)
+        layout_metricas.setSpacing(10)
+
+        # Criando o QTabWidget interno para subabas dentro da aba Métricas
+        self.subtabs_metricas = QTabWidget()
+        layout_metricas.addWidget(self.subtabs_metricas)
+
+        # Subaba 1: Visão Geral
+        self.subaba_visao_geral = QWidget()
+        layout_visao_geral = QVBoxLayout(self.subaba_visao_geral)
+        layout_visao_geral.setContentsMargins(10, 10, 10, 10)
+        layout_visao_geral.setSpacing(10)
+
+        self.metricas_textedit = QTextEdit()
+        self.metricas_textedit.setReadOnly(True)
+        layout_visao_geral.addWidget(self.metricas_textedit)
+
+        self.export_metricas_button = QPushButton("💾 Exportar Métricas para CSV")
+        self.export_metricas_button.clicked.connect(self.exportar_metricas_para_csv)
+        layout_visao_geral.addWidget(self.export_metricas_button)
+
+        self.subtabs_metricas.addTab(self.subaba_visao_geral, " Visão Geral")
+
+        # Subaba 2: Detalhes
+        self.subaba_detalhes = QWidget()
+        layout_detalhes = QVBoxLayout(self.subaba_detalhes)
+        layout_detalhes.setContentsMargins(10, 10, 10, 10)
+        layout_detalhes.setSpacing(10)
+
+        self.metricas_detalhes_textedit = QTextEdit()
+        self.metricas_detalhes_textedit.setReadOnly(True)
+        layout_detalhes.addWidget(self.metricas_detalhes_textedit)
+
+ 
+
+        self.subtabs_metricas.addTab(self.subaba_detalhes, " Detalhes")
+
+        # Adiciona a aba Métricas (com subabas internas) no widget principal
+        self.tabs.addTab(self.aba_metricas, " Métricas")
+
+
+        # === Aba: Bibtex com abas internas ===
+        self.aba_bibtex = QWidget()
+        layout_bibtex = QVBoxLayout(self.aba_bibtex)
+        layout_bibtex.setContentsMargins(10, 10, 10, 10)
+        layout_bibtex.setSpacing(10)
+
+        # Criando o QTabWidget interno
+        self.tabs_bibtex_internos = QTabWidget()
+        layout_bibtex.addWidget(self.tabs_bibtex_internos)
+
+        # --- Aba 1: Entrada Bibtex ---
+        self.entrada_bibtex_widget = QWidget()
+        layout_entrada = QVBoxLayout(self.entrada_bibtex_widget)
+        self.entrada_bibtex_textedit = QTextEdit()
+        layout_entrada.addWidget(self.entrada_bibtex_textedit)
+
+
+      #  self.tabs_bibtex_internos.addTab(self.entrada_bibtex_widget, "Entrada Bibtex")
+
+        # --- Aba 2: Visualização Formatada ---
+        self.visualizacao_bibtex_widget = APA2BibtexWidget ()
+        layout_visu = QVBoxLayout(self.visualizacao_bibtex_widget)
+        self.visualizacao_bibtex_textedit = QTextEdit()
+        self.visualizacao_bibtex_textedit.setReadOnly(True)
+        layout_visu.addWidget(self.visualizacao_bibtex_textedit)
+
+
+      
+        # --- Aba 3: Estatísticas Bibtex ---
+        self.estatisticas_bibtex_widget = BibtexViewer()
+        layout_estat = QVBoxLayout(self.estatisticas_bibtex_widget)
+        self.estatisticas_bibtex_textedit = QTextEdit()
+        self.estatisticas_bibtex_textedit.setReadOnly(True)
+        layout_estat.addWidget(self.estatisticas_bibtex_textedit)
+
+        self.tabs.addTab(self.aba_bibtex, " Bibtex")
+        
+        self.tabs_bibtex_internos.addTab(self.visualizacao_bibtex_widget, "Bib")
+
+        self.tabs_bibtex_internos.addTab(self.estatisticas_bibtex_widget, "Visualização Formatada")
+        # --- Carrega os dados inicialmente ---
+        self.refresh_data()
+    
     def export_authors_affiliations(self):
         if self.dataframe.empty:
             QMessageBox.warning(self, "Aviso", "Nenhum dado disponível para exportar.")
@@ -141,6 +267,8 @@ class GoogleSheetsViewer(QMainWindow):
             QMessageBox.information(self, "Sucesso", f"Arquivo salvo com sucesso em:\n{file_path}")
         except Exception as e:
             QMessageBox.critical(self, "Erro", f"Erro ao salvar arquivo:\n{e}")
+
+
     def export_full_references(self):
         try:
             df_raw = pd.read_csv(self.sheet_csv_url)
@@ -158,6 +286,7 @@ class GoogleSheetsViewer(QMainWindow):
                 if parte_limpa:
                     referencias_separadas.append(parte_limpa)
         df_export = pd.DataFrame({"Ref": referencias_separadas})
+
 
         def extrair_ano(ref_text):
             match = re.search(r"\((\d{4})\)", ref_text)
@@ -185,221 +314,24 @@ class GoogleSheetsViewer(QMainWindow):
             QMessageBox.information(self, "Sucesso", f"Arquivo salvo com sucesso em:\n{file_path}")
         except Exception as e:
             QMessageBox.critical(self, "Erro", f"Erro ao salvar arquivo:\n{e}")
-    def init_ui(self):
-        
-        
-        self.central_widget = QWidget()
-        self.setCentralWidget(self.central_widget)
-        
-        main_layout = QVBoxLayout(self.central_widget)
-        main_layout.setContentsMargins(10, 10, 10, 10)  # Margens padrão
-        main_layout.setSpacing(10)  # Espaçamento entre widgets no layout vertical
-        url_layout = QHBoxLayout()
-        url_label_text = QLabel("URL da Planilha .csv utilizada neste ambiente:")
-        
-        self.url_lineedit = QLineEdit()
-        self.url_lineedit.setText(self.sheet_csv_url)
-        self.url_lineedit.setToolTip("Edite este campo para usar outra planilha CSV pública")
-
-        self.refresh_button = QPushButton("🔄 Atualizar URL e Dados")
-        self.refresh_button.clicked.connect(self.refresh_data)
-
-        url_layout.addWidget(url_label_text)
-        url_layout.addWidget(self.url_lineedit)
-        url_layout.addWidget(self.refresh_button)
-        main_layout.addLayout(url_layout)
-
-
-
-        self.tabs = QTabWidget()
-        main_layout.addWidget(self.tabs)
-        self.visualizador_widget = QWidget()
-        visualizador_layout = QHBoxLayout(self.visualizador_widget)
-        visualizador_layout.setContentsMargins(0, 0, 0, 0)
-        visualizador_layout.setSpacing(5)
-        left_widget = QWidget()
-        left_layout = QVBoxLayout(left_widget)
-        left_layout.setContentsMargins(0, 0, 0, 0)
-        left_layout.setSpacing(5)
-        menubar = QMenuBar(self)
-        self.setMenuBar(menubar)
-        self.region_menu = menubar.addMenu("Filtrar por Região")
-        self.author_menu = menubar.addMenu("Filtrar por Autor")
-        self.region_label = QLabel("Visualizando: Geral (Todas)")
-        self.region_label.setContentsMargins(0, 0, 0, 0)
-        left_layout.addWidget(self.region_label)
-        self.metrics_label = QLabel("")
-        self.metrics_label.setStyleSheet("font-style: italic; color: gray;")
-        self.metrics_label.setContentsMargins(0, 0, 0, 0)
-        left_layout.addWidget(self.metrics_label)
-        self.table = QTableWidget()
-        self.table.verticalHeader().setVisible(False)
-        self.table.setAlternatingRowColors(True)
-        self.table.setSortingEnabled(True)
-        self.table.setSelectionBehavior(QTableWidget.SelectItems)
-        self.table.horizontalHeader().setStretchLastSection(True)
-        left_layout.addWidget(self.table)
-        button_layout = QHBoxLayout()
-        button_layout.setSpacing(10)
-        self.refresh_button = QPushButton("🔄")
-        self.refresh_button.clicked.connect(self.refresh_data)
-
-        self.reload_button = QPushButton("🔄 Recarregar Dados")
-        self.reload_button.clicked.connect(self.load_data)
-        button_layout.addWidget(self.reload_button)
-        self.export_button = QPushButton("📀 Exportar CSV")
-        self.export_button.clicked.connect(self.export_to_csv)
-        button_layout.addWidget(self.export_button)
-        self.export_authors_button = QPushButton("📥 Exportar Autores + Afiliações")
-        self.export_authors_button.clicked.connect(self.export_authors_affiliations)
-        button_layout.addWidget(self.export_authors_button)
-        self.export_refs_button = QPushButton("📜 Exportar Referências Completas")
-        self.export_refs_button.clicked.connect(self.export_full_references)
-        button_layout.addWidget(self.export_refs_button)
-        left_layout.addLayout(button_layout)
-        splitter = QSplitter(Qt.Horizontal)
-        splitter.addWidget(left_widget) 
-        visualizador_layout.addWidget(splitter)
-
-
-        self.aba_metricas = QWidget()
-   
-
-        layout_metricas = QVBoxLayout(self.aba_metricas)
-     
-
-        layout_metricas.setContentsMargins(10, 10, 10, 10)
-        layout_metricas.setSpacing(10)
-        self.metricas_textedit = QTextEdit()
-        self.metricas_textedit.setReadOnly(True)
-        layout_metricas.addWidget(self.metricas_textedit)
-
-        self.export_metricas_button = QPushButton("💾 Exportar Métricas para CSV")
-        self.export_metricas_button.clicked.connect(self.exportar_metricas_para_csv)
-        layout_metricas.addWidget(self.export_metricas_button)
-
-
-        self.tabs.addTab(self.visualizador_widget, "Visualizador de Planilha")
-
-        self.tabs.addTab(self.aba_metricas, " Métricas")
-
-     # --- Nova aba para o BibtexViewer ---
-        self.tab_bibtexviewer = QWidget()
-        tab_bibtexviewer_layout = QVBoxLayout()
-
-            # Instancia o BibtexViewer e adiciona na aba
-        self.bibtex_viewer = APA2BibtexWidget()  
-        tab_bibtexviewer_layout.addWidget(self.bibtex_viewer)
-
-        self.tab_bibtexviewer.setLayout(tab_bibtexviewer_layout)
-        self.tabs.addTab(self.tab_bibtexviewer, "Bibtex Metrics Viewer")
-
-        # Aba APA -> Bibtex
-        self.aba_apa_bibtex = QWidget()
-        layout_apa_bibtex = QVBoxLayout(self.aba_apa_bibtex)
-
-        # Texto com referências APA (editável)
-        self.apa_textedit = QTextEdit()
-        self.apa_textedit.setPlaceholderText("Aqui aparecerão as referências no formato APA extraídas do DataFrame...")
-        layout_apa_bibtex.addWidget(QLabel("Referências em APA:"))
-        self.apa_textedit.setFixedHeight(100)
-
-        layout_apa_bibtex.addWidget(self.apa_textedit)
-
-        # Botão para converter APA para BibTeX
-        self.converter_button = QPushButton("Converter APA para BibTeX")
-        self.converter_button.clicked.connect(self.converter_apa_para_bibtex)
-        layout_apa_bibtex.addWidget(self.converter_button)
-
-        # Texto para mostrar BibTeX convertido
-        self.bibtex_textedit = QTextEdit()
-        self.bibtex_textedit.setReadOnly(True)
-        layout_apa_bibtex.addWidget(QLabel("Referências em BibTeX:"))
-        layout_apa_bibtex.addWidget(self.bibtex_textedit)
-
-        # Botão para copiar BibTeX para área de transferência
-        self.copiar_bibtex_button = QPushButton(" Salvar BibTeX")
-        self.copiar_bibtex_button.clicked.connect(self.salvar_bibtex)
-        layout_apa_bibtex.addWidget(self.copiar_bibtex_button)
-
-      #  self.tabs.addTab(self.aba_apa_bibtex, "APA -> BibTeX")
-        self.refresh_data()
-        
-    def atualizar_apa_textedit(self):
-        # Função para carregar as referências APA da coluna no DataFrame e mostrar no QTextEdit
-        if self.dataframe.empty:
-            self.apa_textedit.setPlainText("Nenhum dado carregado.")
-            return
-        if "Ref" not in self.dataframe.columns:
-            self.apa_textedit.setPlainText("Coluna 'Ref' não encontrada no DataFrame.")
-            return
-        
-        
-
-    def converter_apa_para_bibtex(self):
-        apa_text = self.apa_textedit.toPlainText().strip()
-        if not apa_text:
-            QMessageBox.warning(self, "Aviso", "Texto APA vazio para conversão.")
-            return
-
-        # Separar referências por enter duplo
-        entradas = re.split(r'\n{2,}', apa_text)
-
-        referencias_separadas = []
-        for entrada in entradas:
-            partes = [r.strip() for r in entrada.split('\n\n') if r.strip()]
-            referencias_separadas.extend(partes)
-
-        bibtex_total = ""
-        for idx, entrada_individual in enumerate(referencias_separadas, 1):
-            campos = extrair_campos_apa(entrada_individual)
-
-            # Gerar chave BibTeX (por exemplo, usando autor e ano se disponíveis)
-            autor = campos.get("author", f"autor{idx}").split(",")[0].replace(" ", "")
-            ano = campos.get("year", "0000")
-            chave = f"ref{idx}"
-
-
-            # Montar entrada BibTeX
-            bibtex = f"@article{{{chave},\n"
-            for campo, valor in campos.items():
-                if valor:
-                    bibtex += f"  {campo} = {{{valor}}},\n"
-            bibtex += f"  note = {{{entrada_individual.strip()}}}\n}}\n\n"
-            bibtex_total += bibtex
-
-        self.bibtex_textedit.setPlainText(bibtex_total.strip())
-
-
-    def salvar_bibtex(self):
-        texto = self.bibtex_textedit.toPlainText()
-        if not texto:
-            QMessageBox.warning(self, "Aviso", "Nenhum texto BibTeX para salvar.")
-            return
-
-        # Caminho para a pasta Desktop/PYMT
-        pasta_destino = os.path.join(os.path.expanduser("~"), "Desktop", "PYMT")
-        os.makedirs(pasta_destino, exist_ok=True)
-
-        caminho_arquivo = os.path.join(pasta_destino, "references.bib")
-
-        try:
-            with open(caminho_arquivo, "w", encoding="utf-8") as f:
-                f.write(texto)
-           # QMessageBox.information(self, "Salvo", f"BibTeX salvo em:\n{caminho_arquivo}")
-        except Exception as e:
-            QMessageBox.critical(self, "Erro", f"Erro ao salvar o arquivo:\n{str(e)}")
-
-
+            
     def refresh_data(self):
         try:
             nova_url = self.url_lineedit.text().strip()
             if not nova_url:
                 QMessageBox.warning(self, "URL inválida", "Por favor, insira uma URL válida.")
                 return
-            
+
             # Converte para link CSV, atualiza atributo
             self.sheet_csv_url = self.converter_para_link_csv(nova_url)
+  
+
+            # 🟡 Atualiza config.py com nova URL
+            try:
+                with open("config.py", "w", encoding="utf-8") as config_file:
+                    config_file.write(f'sheet_csv_url = "{self.sheet_csv_url}"\n')
+            except Exception as e:
+                QMessageBox.critical(self, "Erro ao salvar URL", f"Não foi possível atualizar config.py:\n{e}")
 
             # Mostra cursor de carregamento e atualiza UI
             self.setCursor(Qt.WaitCursor)
@@ -411,23 +343,19 @@ class GoogleSheetsViewer(QMainWindow):
                 for action in self.autor_actions:
                     action.setChecked(False)
 
-            # Recarrega dados a partir da URL atualizada
+            # Recarrega dados
             self.load_data()
-
-            # Atualiza elementos da interface com novos dados
             self.region_label.setText("Visualizando: Geral (Todas)")
             self.populate_table()
             self.update_metrics()
-
-   
-
-        except Exception as e:
-            QMessageBox.critical(self, "Erro", f"Erro ao resetar dados:\n{e}")
-            print(f"Erro detalhado: {traceback.format_exc()}")
-
-        finally:
-            # Garante que o cursor volte ao normal mesmo em erro
             self.setCursor(Qt.ArrowCursor)
+            self.visualizacao_bibtex_widget.carregar_excel()
+            self.estatisticas_bibtex_widget.reload_data()
+ 
+        except Exception as e:
+            self.setCursor(Qt.ArrowCursor)
+            traceback.print_exc()
+            QMessageBox.critical(self, "Erro", f"Ocorreu um erro ao atualizar os dados:\n{e}")
 
 
     def converter_para_link_csv(self, url):
@@ -439,9 +367,6 @@ class GoogleSheetsViewer(QMainWindow):
             return f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&gid={gid}"
         else:
             return url  # retorna como está se não for reconhecido
-
-
-
     def exportar_metricas_para_csv(self):
         texto = self.metricas_textedit.toPlainText().strip()
         if not texto:
@@ -469,7 +394,7 @@ class GoogleSheetsViewer(QMainWindow):
         try:
             df = pd.read_csv(self.sheet_csv_url)
             
-            self.atualizar_apa_textedit() 
+
             df = self.expand_ref_column(df)
             df = self.expand_authors_column(df)
             df = self.expand_affiliations_column(df)
@@ -486,9 +411,7 @@ class GoogleSheetsViewer(QMainWindow):
             self.populate_table()
             self.update_metrics()
         except Exception as e:
-            QMessageBox.critical(self, "Erro", f"Erro ao carregar dados:\n{e}")
-
-            
+            QMessageBox.critical(self, "Erro", f"Erro ao carregar dados:\n{e}")  
     def expand_ref_column(self, df):
         if "Ref" not in df.columns:
             return df
@@ -608,7 +531,6 @@ class GoogleSheetsViewer(QMainWindow):
     def toggle_autor_ordering(self):
         self.order_by_frequency = not self.order_by_frequency
         self.update_author_menu()
-
     def clear_autor_filters(self):
         for action in getattr(self, "autor_actions", []):
             action.setChecked(False)
@@ -754,15 +676,48 @@ class GoogleSheetsViewer(QMainWindow):
                         (bg.red() + block_color.red()) // 2,
                         (bg.green() + block_color.green()) // 2,
                         (bg.blue() + block_color.blue()) // 2,)
-                    cell.setBackground(blended)
-                    
+                    cell.setBackground(blended)                
     def update_metrics(self):
         try:
+            # Usa a função que calcula métricas + estatísticas numéricas detalhadas
             metricas_str = calcular_metricas(self.dataframe)
             self.metricas_textedit.setPlainText(metricas_str)
+            self.update_detalhes()
+            self.update_entrada_bibtex()
+            self.update_visualizacao_bibtex()
+            self.update_estatisticas_bibtex()
+
         except Exception as e:
             self.metrics_label.setText("Erro ao calcular métricas.")
             self.metricas_textedit.setPlainText(f"Erro ao calcular métricas:\n{e}")
+    def update_detalhes(self):
+        try:
+            detalhes_str = calcular_metricas_detalhadas(self.dataframe)
+            self.metricas_detalhes_textedit.setPlainText(detalhes_str)
+        except Exception as e:
+            self.metricas_detalhes_textedit.setPlainText(f"Erro ao calcular métricas detalhadas:\n{e}")
+
+    def update_entrada_bibtex(self):
+        try:
+            texto = processar_entrada_bibtex(self.dataframe)
+            self.entrada_bibtex_textedit.setPlainText(texto)
+        except Exception as e:
+            self.entrada_bibtex_textedit.setPlainText(f"Erro ao atualizar Entrada Bibtex:\n{e}")
+
+    def update_visualizacao_bibtex(self):
+        try:
+            texto_formatado = processar_visualizacao_formatada(self.dataframe)
+            self.visualizacao_bibtex_textedit.setPlainText(texto_formatado)
+        except Exception as e:
+            self.visualizacao_bibtex_textedit.setPlainText(f"Erro ao atualizar Visualização Formatada:\n{e}")
+
+    def update_estatisticas_bibtex(self):
+        try:
+            estatisticas = processar_estatisticas_bibtex(self.dataframe)
+            self.estatisticas_bibtex_textedit.setPlainText(estatisticas)
+        except Exception as e:
+            self.estatisticas_bibtex_textedit.setPlainText(f"Erro ao atualizar Estatísticas Bibtex:\n{e}")
+
     def export_to_csv(self):
         headers = [self.table.horizontalHeaderItem(i).text() for i in range(self.table.columnCount())]
         if not headers:
@@ -792,6 +747,9 @@ class GoogleSheetsViewer(QMainWindow):
             QMessageBox.information(self, "Sucesso", f"Arquivo salvo com sucesso em:\n{file_path}")
         except Exception as e:
             QMessageBox.critical(self, "Erro", f"Erro ao salvar arquivo:\n{e}")
+
+
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = GoogleSheetsViewer()

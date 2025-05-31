@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Leitor de Google Sheets</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+    input, button {
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 16px;
+      width: 100%;
+      max-width: 600px;
+      display: block;
+    }
+    button {
+      margin-bottom: 20px;
+      background-color: #00796b;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #004d40;
+    }
+
+    .metricas {
+      background: #e0f7fa;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-left: 5px solid #00796b;
+      max-width: 600px;
+    }
+
+    .error {
+      color: red;
+    }
+
+    .spinner {
+      display: none;
+      margin: 20px auto;
+      border: 8px solid #f3f3f3;
+      border-top: 8px solid #00796b;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: girar 1s linear infinite;
+    }
+
+    @keyframes girar {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    table {
+      width: 100%;
+      max-width: 800px;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #b2dfdb;
+    }
+  </style>
+</head>
+<body>
+  <h1>Leitor de Google Sheets</h1>
+  <p>Cole o link da planilha do Google e digite o nome da aba:</p>
+
+  <input type="text" id="sheetLink" placeholder="Link da planilha do Google Sheets">
+  <input type="text" id="sheetTab" placeholder="Nome da aba (ex: Planilha1)">
+  <button onclick="carregarPlanilha()">Carregar dados</button>
+
+  <div class="spinner" id="spinner"></div>
+
+  <div id="metricas" class="metricas" style="display:none;"></div>
+  <div id="previewContainer"></div>
+
+  <script>
+    function extrairID(link) {
+      const match = link.match(/\/d\/([a-zA-Z0-9-_]+)/);
+      return match ? match[1] : null;
+    }
+
+    function carregarPlanilha() {
+      const link = document.getElementById('sheetLink').value.trim();
+      const aba = document.getElementById('sheetTab').value.trim();
+      const id = extrairID(link);
+      const metricas = document.getElementById('metricas');
+      const spinner = document.getElementById('spinner');
+      const previewContainer = document.getElementById('previewContainer');
+
+      previewContainer.innerHTML = '';
+      metricas.style.display = 'none';
+
+      if (!id || !aba) {
+        alert('Por favor, insira o link completo da planilha e o nome da aba corretamente.');
+        return;
+      }
+
+      const url = `https://opensheet.elk.sh/${id}/${encodeURIComponent(aba)}`;
+
+      // Mostrar animação
+      spinner.style.display = 'block';
+
+      fetch(url)
+        .then(response => {
+          if (!response.ok) throw new Error('Erro ao acessar os dados');
+          return response.json();
+        })
+        .then(data => {
+          spinner.style.display = 'none';
+
+          if (data.length === 0) {
+            previewContainer.innerHTML = '<p class="error">Nenhum dado encontrado na aba especificada.</p>';
+            return;
+          }
+
+          const colunas = Object.keys(data[0]);
+          metricas.innerHTML = `
+            <strong>Métricas:</strong><br>
+            ➤ Total de linhas: ${data.length}<br>
+            ➤ Total de colunas: ${colunas.length}<br>
+            ➤ Colunas: ${colunas.join(', ')}
+          `;
+          metricas.style.display = 'block';
+
+          // Criar tabela
+          const tabela = document.createElement('table');
+          const thead = document.createElement('thead');
+          const headerRow = document.createElement('tr');
+
+          colunas.forEach(col => {
+            const th = document.createElement('th');
+            th.textContent = col;
+            headerRow.appendChild(th);
+          });
+          thead.appendChild(headerRow);
+          tabela.appendChild(thead);
+
+          const tbody = document.createElement('tbody');
+          data.slice(0, 10).forEach(linha => {
+            const tr = document.createElement('tr');
+            colunas.forEach(col => {
+              const td = document.createElement('td');
+              td.textContent = linha[col] || '';
+              tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+          });
+
+          tabela.appendChild(tbody);
+          previewContainer.appendChild(tabela);
+        })
+        .catch(error => {
+          spinner.style.display = 'none';
+          console.error('Erro:', error);
+          previewContainer.innerHTML = '<p class="error">Erro ao carregar os dados. Verifique o link e o nome da aba.</p>';
+        });
+    }
+  </script>
+</body>
+</html>
