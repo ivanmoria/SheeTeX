@@ -52,7 +52,7 @@ class APA2BibtexWidget(QWidget):
         # Label e área de texto para resultado BibTeX
         main_layout.addWidget(QLabel("Resultado BibTeX:"))
         self.output_edit = QTextEdit()
-        self.output_edit.setReadOnly(True)
+        self.output_edit.setReadOnly(False)
         main_layout.addWidget(self.output_edit)
 
 

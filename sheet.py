@@ -205,7 +205,7 @@ class GoogleSheetsViewer(QMainWindow):
         layout_entrada = QVBoxLayout(self.entrada_bibtex_widget)
         self.entrada_bibtex_textedit = QTextEdit()
         layout_entrada.addWidget(self.entrada_bibtex_textedit)
-
+        self.entrada_bibtex_textedit.setReadOnly(False)
       
       #  self.tabs_bibtex_internos.addTab(self.entrada_bibtex_widget, "Entrada Bibtex")
 

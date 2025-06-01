@@ -201,7 +201,7 @@ class BibtexViewer(QMainWindow):
         self.figures["Décadas"] = fig3
 
             # Lista de palavras a serem removidas
-        palavras_remover = ["van", "et", "al", "Music", "music", "International","Française Musicothérapie","Revista","therapy","with","eds","association","Association","2nd","Eds","use","der","Der","Kim","Federation", "Therapy", "therapist", "for","to","an","An","as","As",
+        palavras_remover = ["van", "et", "al", "Music", "music", "International","Revista","therapy","with","eds","association","Association","2nd","Eds","use","der","Der","Kim","Federation", "Therapy", "therapist", "for","to","an","An","as","As",
                             "Ed", "de", "Journal", "De", "a","and","of","la","Of","in","on","online","during","world","World", "the","e","by","with","o", "da", "do", "das", "dos"]
 
         # Converte a lista de palavras a remover para minúsculas para garantir comparação consistente
