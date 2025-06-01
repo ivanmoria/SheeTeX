@@ -16,10 +16,8 @@ from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 import re
 from processador_referencias import extrair_campos_apa, extrair_autores_completos
-from wordcloud import STOPWORDS
 
-stopwords = set(STOPWORDS)
-wc = WordCloud(stopwords=stopwords)
+
 
 
 def analyze_bibtex():
@@ -187,18 +185,31 @@ class BibtexViewer(QMainWindow):
         subtabs.addTab(tab2, "Autores")
         self.figures["Autores"] = fig2
 
-        # 3. Gráfico: Publicações por Década (pizza)
+            # 3. Gráfico: Publicações por Década (pizza)
         fig3, canvas3 = create_canvas()
         ax3 = fig3.add_subplot(111)
+
+        # Preparando os dados
         decadas = [x[0] for x in metrics['decadas']]
         dec_qtd = [x[1] for x in metrics['decadas']]
-        ax3.pie(dec_qtd, labels=decadas, autopct='%1.1f%%', startangle=140)
-        ax3.set_title("Publicações por Década")
+
+        # Criando o gráfico de pizza
+        ax3.pie(dec_qtd, labels=decadas, autopct='%1.1f%%', startangle=140, textprops={'fontsize': 12, 'ha': 'center'})
+
+        # Ajustando o título e o layout
+        ax3.set_title("Publicações por Década", fontsize=14, pad=20)  # Ajusta o título e o espaçamento
+        ax3.axis('equal')  # Torna a pizza circular (aspecto igual)
+
+        # Ajustando o layout para evitar sobreposição
+        fig3.tight_layout()
+
+        # Adicionando o gráfico na aba
         tab3 = QWidget()
         l3 = QVBoxLayout(tab3)
         l3.addWidget(canvas3)
         subtabs.addTab(tab3, "Décadas")
         self.figures["Décadas"] = fig3
+
 
             # Lista de palavras a serem removidas
         palavras_remover = ["van", "et", "al", "Music", "music", "International","Revista","therapy","with","eds","association","Association","2nd","Eds","use","der","Der","Kim","Federation", "Therapy", "therapist", "for","to","an","An","as","As",
@@ -242,7 +253,7 @@ class BibtexViewer(QMainWindow):
                                 stopwords=stopwords, colormap='viridis', max_words=100).generate(palavras)
                 ax_wc.imshow(wc, interpolation='bilinear')
                 ax_wc.axis("off")
-                ax_wc.set_title(f"Nuvem de Palavras: {campo.capitalize()}")
+                ax_wc.set_title(f"{campo.capitalize()}")
 
             # Adicionando a nuvem ao layout
             tab_wc = QWidget()
