@@ -11,8 +11,94 @@ import statistics
 import sys
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
-import matplotlib.pyplot as plt
 import numpy as np
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
+import re
+from processador_referencias import extrair_campos_apa, extrair_autores_completos
+from wordcloud import STOPWORDS
+
+stopwords = set(STOPWORDS)
+wc = WordCloud(stopwords=stopwords)
+
+
+def analyze_bibtex():
+    # Caminho do arquivo bibtex
+    bibtex_path = Path.home() / "Desktop/PYMT/references.bib"
+    if not bibtex_path.exists():
+        raise FileNotFoundError(f"Arquivo {bibtex_path} não encontrado.")
+
+    with open(bibtex_path, encoding="utf-8") as bibtex_file:
+        bib_database = bibtexparser.load(bibtex_file)
+
+    entries = bib_database.entries
+
+    # Lista das publicações completas para tabela detalhada (sem N/A)
+    publicacoes_completas = []
+    publicacoes_por_ano = defaultdict(int)
+    tipos_publicacao = defaultdict(int)
+    autores_count = defaultdict(int)
+    decadas_count = defaultdict(int)
+
+    for entry in entries:
+        year = entry.get("year", "N/A")
+        tipo = entry.get("ENTRYTYPE", "N/A")
+        bib_id = entry.get("ID", "N/A")
+        authors = entry.get("author", "N/A")
+        title = entry.get("title", "N/A")
+
+        # Ignorar entradas que tenham qualquer campo "N/A"
+        if "N/A" in (year, tipo, bib_id, authors, title):
+            continue
+
+        # Publicações completas (linha da tabela)
+        publicacoes_completas.append([year, tipo, bib_id, authors, title])
+
+        # Publicações por ano
+        if year.isdigit():
+            year_int = int(year)
+            publicacoes_por_ano[year_int] += 1
+            decada = (year_int // 10) * 10
+            decadas_count[decada] += 1
+
+        # Tipos de publicação
+        tipos_publicacao[tipo] += 1
+
+        # Contagem de autores
+        for autor in authors.split(" and "):
+            autor = autor.strip()
+            if autor:
+                autores_count[autor] += 1
+
+    # Ordenar dados para exibição
+    publicacoes_por_ano = sorted(publicacoes_por_ano.items())
+    tipos_publicacao = sorted(tipos_publicacao.items(), key=lambda x: x[1], reverse=True)
+    autores_completos = sorted(autores_count.items(), key=lambda x: x[1], reverse=True)
+    decadas = sorted(decadas_count.items())
+
+    # Estatísticas gerais simples
+    total_publicacoes = len(publicacoes_completas)
+    total_autores_unicos = len(autores_count)
+    anos_analizados = len(publicacoes_por_ano)
+    media_pub_por_ano = round(total_publicacoes / anos_analizados, 2) if anos_analizados else 0
+
+    estatisticas_gerais = [
+        ("Total de publicações", total_publicacoes),
+        ("Autores únicos", total_autores_unicos),
+        ("Anos analisados", anos_analizados),
+        ("Média de publicações por ano", media_pub_por_ano)
+    ]
+
+    return {     "entries": entries,
+        "publicacoes_completas": publicacoes_completas,
+        "publicacoes_por_ano": publicacoes_por_ano,
+        "tipos_publicacao": tipos_publicacao,
+        "autores_completos": autores_completos,
+        "decadas": decadas,
+        "estatisticas_gerais": estatisticas_gerais,
+    }
+
+
 
 class BibtexViewer(QMainWindow):
     def __init__(self):
@@ -21,6 +107,7 @@ class BibtexViewer(QMainWindow):
         self.resize(1000, 600)
         self.initUI()
         self.reload_data()
+
     def initUI(self):
         central_widget = QWidget()
         main_layout = QVBoxLayout()
@@ -30,54 +117,42 @@ class BibtexViewer(QMainWindow):
         # Botões
         button_layout = QHBoxLayout()
 
-        self.update_button = QPushButton("Atualizar Tabelas")
-        self.update_button.clicked.connect(self.reload_data)
-        #button_layout.addWidget(self.update_button)
-        self.update_button.setStyleSheet("""
-            QPushButton {
-                background-color: #4CAF50;       /* Verde */
-                color: white;
-                border: 2px solid #388E3C;
-                border-radius: 30px;
-                padding: 2px 2px;
-                font-weight: bold;
-            }
-            QPushButton:hover {
-                background-color: #45A049;       /* Verde um pouco mais claro ao passar o mouse */
-                border-color: #2E7D32;
-            }
-        """)
         self.export_button = QPushButton("Exportar Tabela Atual")
         self.export_button.clicked.connect(self.exportar_tabela_atual)
         button_layout.addWidget(self.export_button)
+        self.reload_button = QPushButton("Recarregar Dados")
+        self.reload_button.clicked.connect(self.reload_data)
+        button_layout.addWidget(self.reload_button)
 
-       
-
-        # Abas com tabelas
+        # Abas com tabelas e gráficos
         self.tabs = QTabWidget()
         main_layout.addWidget(self.tabs)
         main_layout.addLayout(button_layout)
-        self.reload_data()
+
+        # Dicionário para armazenar figuras
+        self.figures = {}
+
+    
     def create_plots_tab_with_subtabs(self, metrics):
+        # Widget principal que contém os gráficos
         widget = QWidget()
-        layout = QVBoxLayout()
-        widget.setLayout(layout)
+        layout = QVBoxLayout(widget)
 
         # Botão para exportar gráfico ativo
         export_plot_button = QPushButton("Exportar Gráfico Atual")
         layout.addWidget(export_plot_button, alignment=Qt.AlignRight)
 
+        # Definindo o container de abas
         subtabs = QTabWidget()
         layout.addWidget(subtabs)
 
+        # Função para criar o canvas de gráficos
         def create_canvas():
-            fig = Figure(figsize=(6,4))
+            fig = Figure(figsize=(6, 4))
             canvas = FigureCanvas(fig)
             return fig, canvas
 
-        self.figures = {}
-
-        # Gráfico 1: Publicações por Ano
+        # 1. Gráfico: Publicações por Ano
         fig1, canvas1 = create_canvas()
         ax1 = fig1.add_subplot(111)
         anos = [int(x[0]) for x in metrics['publicacoes_por_ano']]
@@ -93,47 +168,102 @@ class BibtexViewer(QMainWindow):
         subtabs.addTab(tab1, "Por Ano")
         self.figures["Por Ano"] = fig1
 
-        # Gráfico 3: Autores mais frequentes (top 10)
-        fig3, canvas3 = create_canvas()
-        ax3 = fig3.add_subplot(111)
+        # 2. Gráfico: Top 10 Autores
+        fig2, canvas2 = create_canvas()
+        ax2 = fig2.add_subplot(111)
         top_autores = metrics['autores_completos'][:10]
         autores = [x[0] for x in top_autores]
         pubs = [x[1] for x in top_autores]
         y_pos = np.arange(len(autores))
-        ax3.barh(y_pos, pubs, color='lightgreen')
-        ax3.set_yticks(y_pos)
-        ax3.set_yticklabels(autores)
-        ax3.invert_yaxis()
-        ax3.set_title("Top 10 Autores")
-        ax3.set_xlabel("Número de Publicações")
+        ax2.barh(y_pos, pubs, color='lightgreen')
+        ax2.set_yticks(y_pos)
+        ax2.set_yticklabels(autores)
+        ax2.invert_yaxis()  # Inverte o eixo Y para exibir o autor com mais publicações no topo
+        ax2.set_title("Top 10 Autores")
+        ax2.set_xlabel("Número de Publicações")
+        tab2 = QWidget()
+        l2 = QVBoxLayout(tab2)
+        l2.addWidget(canvas2)
+        subtabs.addTab(tab2, "Autores")
+        self.figures["Autores"] = fig2
+
+        # 3. Gráfico: Publicações por Década (pizza)
+        fig3, canvas3 = create_canvas()
+        ax3 = fig3.add_subplot(111)
+        decadas = [x[0] for x in metrics['decadas']]
+        dec_qtd = [x[1] for x in metrics['decadas']]
+        ax3.pie(dec_qtd, labels=decadas, autopct='%1.1f%%', startangle=140)
+        ax3.set_title("Publicações por Década")
         tab3 = QWidget()
         l3 = QVBoxLayout(tab3)
         l3.addWidget(canvas3)
-        subtabs.addTab(tab3, "Autores")
-        self.figures["Autores"] = fig3
+        subtabs.addTab(tab3, "Décadas")
+        self.figures["Décadas"] = fig3
 
-        # Gráfico 4: Publicações por Década (pizza)
-        fig4, canvas4 = create_canvas()
-        ax4 = fig4.add_subplot(111)
-        decadas = [x[0] for x in metrics['decadas']]
-        dec_qtd = [x[1] for x in metrics['decadas']]
-        ax4.pie(dec_qtd, labels=decadas, autopct='%1.1f%%', startangle=140)
-        ax4.set_title("Publicações por Década")
-        tab4 = QWidget()
-        l4 = QVBoxLayout(tab4)
-        l4.addWidget(canvas4)
-        subtabs.addTab(tab4, "Décadas")
-        self.figures["Décadas"] = fig4
+            # Lista de palavras a serem removidas
+        palavras_remover = ["van", "et", "al", "Music", "music", "International","Française Musicothérapie","Revista","therapy","with","eds","association","Association","2nd","Eds","use","der","Der","Kim","Federation", "Therapy", "therapist", "for","to","an","An","as","As",
+                            "Ed", "de", "Journal", "De", "a","and","of","la","Of","in","on","online","during","world","World", "the","e","by","with","o", "da", "do", "das", "dos"]
 
+        # Converte a lista de palavras a remover para minúsculas para garantir comparação consistente
+        palavras_remover = [p.lower() for p in palavras_remover]
+
+        # 4. Nuvens de Palavras para vários campos
+        campos = ['title', 'author', 'journal', 'abstract', 'keywords']  # Ajuste os campos conforme o seu bibtex
+        for campo in campos:
+            fig_wc, canvas_wc = create_canvas()
+            ax_wc = fig_wc.add_subplot(111)
+
+            # Extrair texto para a nuvem
+            if campo == 'author':
+                # Filtra autores, permitindo que mesmo iniciais sejam incluídas
+                autores = [entry.get(campo, '') for entry in metrics['entries']]
+                autores_filtrados = []
+                for autor in autores:
+                    # Separa por espaços para pegar nomes completos
+                    nomes = autor.split()
+                    # Mantém todos os nomes completos (não exclui iniciais ou nomes válidos)
+                    autores_filtrados.append(" ".join(nomes))  # Junta todos os nomes
+
+                palavras = " ".join(autores_filtrados)  # Junta todos os autores válidos em uma única string
+            else:
+                palavras = " ".join([entry.get(campo, '') for entry in metrics['entries']])
+
+            # Remove pontuações
+            palavras = re.sub(r'[^\w\s]', '', palavras)  # Remove pontuações
+
+            # Filtra palavras de uma única letra e palavras da lista de exclusão
+            palavras = " ".join([p for p in palavras.split() if len(p) > 1 and p.lower() not in palavras_remover])
+
+            # Criação da nuvem de palavras
+            if palavras.strip():  # Verifica se existe algum texto após a remoção de pontuações
+                # Adiciona as palavras da lista de stopwords, incluindo as de exclusão
+                stopwords = set(palavras_remover)
+                wc = WordCloud(width=800, height=400, background_color='white',
+                                stopwords=stopwords, colormap='viridis', max_words=100).generate(palavras)
+                ax_wc.imshow(wc, interpolation='bilinear')
+                ax_wc.axis("off")
+                ax_wc.set_title(f"Nuvem de Palavras: {campo.capitalize()}")
+
+            # Adicionando a nuvem ao layout
+            tab_wc = QWidget()
+            lwc = QVBoxLayout(tab_wc)
+            lwc.addWidget(canvas_wc)
+            subtabs.addTab(tab_wc, f"Nuvem: {campo.capitalize()}")
+            self.figures[f"Nuvem: {campo}"] = fig_wc
+
+
+
+
+
+
+        # Adiciona a guia de gráficos na interface
         self.tabs.addTab(widget, "Gráficos")
 
-        # Agora conectamos o botão à função de exportação
+        # Conectar a função de exportação de gráficos
         export_plot_button.clicked.connect(self.export_current_plot)
 
-    def export_current_plot(self):
-        # Pega a aba de gráficos (assumindo que é a última aba adicionada)
-        
 
+    def export_current_plot(self):
         widget = self.tabs.widget(self.tabs.count() - 1)
         if widget is None:
             QMessageBox.warning(self, "Erro", "Nenhum gráfico disponível para exportar.")
@@ -145,14 +275,13 @@ class BibtexViewer(QMainWindow):
             return
 
         current_tab_name = subtabs.tabText(subtabs.currentIndex())
-        
         fig = self.figures.get(current_tab_name, None)
         if fig is None:
             QMessageBox.warning(self, "Erro", "Não foi possível encontrar o gráfico para exportar.")
             return
 
         save_folder = Path.home() / "Desktop" / "PYMT"
-        save_folder.mkdir(parents=True, exist_ok=True)  # cria a pasta se não existir
+        save_folder.mkdir(parents=True, exist_ok=True)
 
         n = 1
         while True:
@@ -162,10 +291,10 @@ class BibtexViewer(QMainWindow):
             n += 1
 
         fig.savefig(str(file_path), dpi=300)
-
         QMessageBox.information(self, "Sucesso", f"Gráfico salvo em:\n{file_path}")
 
-        
+
+
     def exportar_tabela_atual(self):
         index = self.tabs.currentIndex()
         if index == -1:
@@ -183,14 +312,47 @@ class BibtexViewer(QMainWindow):
 
         try:
             with open(file_path, 'w', encoding='utf-8') as f:
-                headers = [table.horizontalHeaderItem(i).text() for i in range(table.columnCount())]
-                f.write(','.join(headers) + '\n')
-                for row in range(table.rowCount()):
-                    row_data = []
+                if tab_title == "publicações_completas":  # aba Publicações completas
+                    desired_columns = ["Ano", "Autores", "Título"]
+                    col_indices = []
                     for col in range(table.columnCount()):
-                        item = table.item(row, col)
-                        row_data.append(item.text() if item else "")
-                    f.write(','.join(row_data) + '\n')
+                        header_text = table.horizontalHeaderItem(col).text()
+                        if header_text in desired_columns:
+                            col_indices.append(col)
+
+                    # Escreve cabeçalho com coluna numeração
+                    headers = ["#", *desired_columns]
+                    f.write(','.join(headers) + '\n')
+
+                    # Escreve dados — **incluindo todas as linhas, sem pular**
+                    for row in range(table.rowCount()):
+                        row_data = [str(row + 1)]
+                        for col in col_indices:
+                            item = table.item(row, col)
+                            text = item.text().strip() if item else ""
+                            if text == "N/A":
+                                text = ""  # substitui "N/A" por vazio
+
+                            # Colocar aspas em autores e título para CSV, e escapar aspas internas
+                            header = table.horizontalHeaderItem(col).text()
+                            if header in ("Autores", "Título") and text:
+                                text = text.replace('"', '""')
+                                text = f'"{text}"'
+                            row_data.append(text)
+
+                        f.write(','.join(row_data) + '\n')
+
+                else:
+                    # Para as outras abas salva tudo normalmente
+                    headers = [table.horizontalHeaderItem(i).text() for i in range(table.columnCount())]
+                    f.write(','.join(headers) + '\n')
+                    for row in range(table.rowCount()):
+                        row_data = []
+                        for col in range(table.columnCount()):
+                            item = table.item(row, col)
+                            row_data.append(item.text() if item else "")
+                        f.write(','.join(row_data) + '\n')
+
             QMessageBox.information(self, "Sucesso", f"Tabela exportada como:\n{file_path}")
         except Exception as e:
             QMessageBox.critical(self, "Erro", f"Erro ao exportar CSV:\n{e}")
@@ -198,32 +360,41 @@ class BibtexViewer(QMainWindow):
 
 
     def reload_data(self):
-        
         self.tabs.clear()
         try:
             metrics = analyze_bibtex()
         except Exception as e:
-       #    QMessageBox.critical(self, "Erro", f"Falha ao carregar dados: {str(e)}")
+            QMessageBox.critical(self, "Erro", f"Falha ao carregar dados: {str(e)}")
             return
 
         if not metrics or not metrics['publicacoes_completas']:
             QMessageBox.warning(self, "Aviso", "Nenhum dado encontrado no arquivo BibTeX.")
             return
 
-        self.create_table_tab("Publicações completas", metrics['publicacoes_completas'],
-                              ["Ano", "Tipo", "ID", "Autores", "Título", "Publicação"])
+        # Filtrar linhas com "N/A" em qualquer coluna
+        filtered_pub_completas = [
+            [row[0], row[3], row[4]]  # seleciona só Ano, Autores e Título
+            for row in metrics['publicacoes_completas']
+            if all(row[i] != "N/A" for i in [0, 3, 4])
+        ]
+
+        self.create_table_tab("Publicações completas", filtered_pub_completas,
+                            ["Ano", "Autores", "Título"])
+        
+        # Demais abas continuam iguais
         self.create_table_tab("Publicações por ano", metrics['publicacoes_por_ano'],
-                              ["Ano", "Quantidade"])
+                            ["Ano", "Quantidade"])
         self.create_table_tab("Autores mais frequentes", metrics['autores_completos'],
-                              ["Autores", "Publicações"])
+                            ["Autores", "Publicações"])
         self.create_table_tab("Tipos de publicação", metrics['tipos_publicacao'],
-                              ["Tipo", "Quantidade"])
+                            ["Tipo", "Quantidade"])
         self.create_table_tab("Publicações por década", metrics['decadas'],
-                              ["Década", "Quantidade"])
+                            ["Década", "Quantidade"])
         self.create_table_tab("Estatísticas gerais", metrics['estatisticas_gerais'],
-                              ["Métrica", "Valor"])
+                            ["Métrica", "Valor"])
 
         self.create_plots_tab_with_subtabs(metrics)
+
 
     def create_table_tab(self, title, data, headers):
         widget = QWidget()
@@ -232,68 +403,10 @@ class BibtexViewer(QMainWindow):
         layout.addWidget(table)
         widget.setLayout(layout)
 
-        if title == "Publicações por ano":
-            headers.append("Média por ano em 5 anos")
+        if len(data) == 0:
+            table.setRowCount(0)
             table.setColumnCount(len(headers))
-            table.setRowCount(len(data))
-
-            valores = [int(row[1]) for row in data]
-            anos = [str(row[0]) for row in data]
-
-            for row_idx, row_data in enumerate(data):
-                for col_idx, value in enumerate(row_data):
-                    item = QTableWidgetItem(str(value))
-                    item.setFlags(item.flags() ^ Qt.ItemIsEditable)
-                    table.setItem(row_idx, col_idx, item)
-
-                # Calcular média a cada 5 linhas ou no fim
-                is_final_row = row_idx == len(data) - 1
-                if row_idx % 5 == 4 or is_final_row:
-                    start_idx = row_idx - 4 if row_idx >= 4 else 0
-                    end_idx = row_idx
-                    subset = valores[start_idx:end_idx + 1]
-                    intervalo_anos = f"{anos[start_idx]}–{anos[end_idx]}"
-                    media_valor = round(sum(subset) / len(subset), 1)
-                    texto_media = f"{intervalo_anos} → {media_valor}"
-
-                    media_item = QTableWidgetItem(texto_media)
-                    media_item.setFlags(media_item.flags() ^ Qt.ItemIsEditable)
-                
-                    table.setItem(row_idx, 2, media_item)
-                else:
-                    table.setItem(row_idx, 2, QTableWidgetItem(""))
-
-        elif title == "Publicações por década":
-            headers.append("Média")
-            table.setColumnCount(len(headers))
-            table.setRowCount(len(data) + 1)  # +1 para linha da média geral
-
-            # Extrair quantidades para cálculo da média
-            valores = [int(row[1]) for row in data]
-
-            # Preencher dados normais
-            for row_idx, row_data in enumerate(data):
-                for col_idx, value in enumerate(row_data):
-                    item = QTableWidgetItem(str(value))
-                    item.setFlags(item.flags() ^ Qt.ItemIsEditable)
-                    table.setItem(row_idx, col_idx, item)
-
-            # Calcular média geral
-            media_geral = round(sum(valores) / len(valores), 2) if valores else 0
-
-            # Linha extra para mostrar a média
-            media_text_item = QTableWidgetItem("Média geral")
-            media_text_item.setFlags(media_text_item.flags() ^ Qt.ItemIsEditable)
-            table.setItem(len(data), 0, media_text_item)
-
-            media_valor_item = QTableWidgetItem(str(media_geral))
-            media_valor_item.setFlags(media_valor_item.flags() ^ Qt.ItemIsEditable)
-            table.setItem(len(data), len(headers)-1, media_valor_item)
-
-            # Preencher as células vazias da média na coluna média com "-"
-            for row_idx in range(len(data)):
-                table.setItem(row_idx, len(headers)-1, QTableWidgetItem("-"))
-
+            table.setHorizontalHeaderLabels(headers)
         else:
             table.setRowCount(len(data))
             table.setColumnCount(len(headers))
@@ -302,109 +415,44 @@ class BibtexViewer(QMainWindow):
             for row_idx, row_data in enumerate(data):
                 for col_idx, value in enumerate(row_data):
                     item = QTableWidgetItem(str(value))
-                    item.setFlags(item.flags() ^ Qt.ItemIsEditable)
+                    item.setFlags(item.flags() ^ Qt.ItemIsEditable)  # Deixa célula não editável
                     table.setItem(row_idx, col_idx, item)
 
-        table.setHorizontalHeaderLabels(headers)
-        table.resizeColumnsToContents()
+        # Definir larguras específicas para a aba "Publicações completas"
+        if title == "Publicações completas":
+            column_widths = {
+                0: 50,    # Ano
+                1: 275,   # Autores
+                2: 525,    # Título
+            }
+        elif title == "Autores mais frequentes":
+            column_widths = {
+                0: 500,
+                1: 100,
+            }
+        elif title == "Estatísticas gerais":
+            column_widths = {
+                0: 200,
+                1: 80,
+            }
+        else:
+            column_widths = {}
+
+        # Aplicar as larguras
+        for col, width in column_widths.items():
+            table.setColumnWidth(col, width)
+
         self.tabs.addTab(widget, title)
 
-def analyze_bibtex():
-    input_file = Path.home() / "Desktop/PYMT/references.bib"
-
-    if not input_file.exists():
-        raise FileNotFoundError(f"Arquivo '{input_file}' não encontrado.")
-
-    with open(input_file, 'r', encoding='utf-8') as bibtex_file:
-        parser = bibtexparser.bparser.BibTexParser(common_strings=True)
-        bib_database = bibtexparser.load(bibtex_file, parser=parser)
-
-    metrics = {
-        'publicacoes_completas': [],
-        'autores_completos': defaultdict(int),
-        'publicacoes_por_ano': defaultdict(int),
-        'tipos_publicacao': defaultdict(int),
-        'decadas': defaultdict(int),
-    }
-
-    anos = []
-
-    for entry in bib_database.entries:
-        ano = entry.get('year', 'N/A')
-        tipo = entry.get('ENTRYTYPE', 'N/A')
-        id_pub = entry.get('ID', 'N/A')
-        autores = entry.get('author', 'N/A')
-        titulo = entry.get('title', 'N/A')
-        publicacao = entry.get('journal', entry.get('booktitle', 'N/A'))
-
-        metrics['publicacoes_completas'].append(
-            [ano, tipo, id_pub, autores, titulo, publicacao]
-        )
-
-        try:
-            ano_int = int(ano)
-            metrics['publicacoes_por_ano'][ano_int] += 1
-            anos.append(ano_int)
-            decade = (ano_int // 10) * 10
-            metrics['decadas'][f"{decade}-{decade+9}"] += 1
-        except:
-            pass
-
-        metrics['tipos_publicacao'][tipo] += 1
-        if autores and autores.strip().upper() != "N/A":
-            metrics['autores_completos'][autores] += 1
-
-    def dict_to_sorted_list(d, key_format=str):
-        return [[key_format(k), v] for k, v in sorted(d.items())]
-
-    # Agrupamento de publicações por intervalo de 5 anos
-    publicacoes_por_5anos = defaultdict(int)
-    publicacoes_5anos_lista = []
-
-    if anos:
-        min_ano = min(anos)
-        max_ano = max(anos)
-        for ano in anos:
-            inicio_intervalo = (ano // 5) * 5
-            fim_intervalo = inicio_intervalo + 4
-            chave_intervalo = f"{inicio_intervalo}-{fim_intervalo}"
-            publicacoes_por_5anos[chave_intervalo] += 1
-
-        # Ordenar os intervalos
-        publicacoes_5anos_lista = sorted(
-            [[intervalo, qtd] for intervalo, qtd in publicacoes_por_5anos.items()],
-            key=lambda x: int(x[0].split("-")[0])
-        )
-
-        media_5anos = round(statistics.mean(publicacoes_por_5anos.values()), 2)
-    else:
-        media_5anos = "N/A"
 
 
 
-
-    result = {
-        'publicacoes_completas': metrics['publicacoes_completas'],
-        'publicacoes_por_ano': dict_to_sorted_list(metrics['publicacoes_por_ano'], int),
-        'autores_completos': sorted(metrics['autores_completos'].items(), key=lambda x: x[1], reverse=True),
-        'tipos_publicacao': dict_to_sorted_list(metrics['tipos_publicacao']),
-        'decadas': dict_to_sorted_list(metrics['decadas']),
-        'estatisticas_gerais': [
-            ["Total de publicações", len(metrics['publicacoes_completas'])],
-            ["Total de autores distintos", len(metrics['autores_completos'])],
-            ["Anos distintos", len(set(anos))],
-            ["Ano mais antigo", min(anos) if anos else "N/A"],
-            ["Ano mais recente", max(anos) if anos else "N/A"],
-       
-        ],
-        'publicacoes_por_5anos': publicacoes_5anos_lista
-    }
-
-    return result
+def main():
+    app = QApplication(sys.argv)
+    window = BibtexViewer()
+    window.show()
+    sys.exit(app.exec_())
 
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    viewer = BibtexViewer()
-    viewer.show()
-    sys.exit(app.exec_())
+    main()

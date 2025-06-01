@@ -8,7 +8,7 @@ import pandas as pd
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QLabel, QTextEdit, QPushButton,
     QVBoxLayout, QMessageBox, QTableWidget, QTableWidgetItem,
-    QTabWidget, QHBoxLayout
+    QTabWidget, QHBoxLayout, QFileDialog,
 )
 from PyQt5.QtCore import Qt, QStandardPaths
 from bibtexmetrics import BibtexViewer
@@ -19,19 +19,16 @@ import config
 class APA2BibtexWidget(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Conversor APA → BibTeX (de planilha)")
+        self.setWindowTitle("Bibtex from APA column Ref")
         self.initUI()
         self.salvar_bibtex()
         self.carregar_excel()
-
-
-
     def initUI(self):
         main_layout = QVBoxLayout()
 
         # Campo oculto para entrada de texto, se precisar (não adicionado visualmente)
         self.input_edit = QTextEdit()
-
+   
         # Tabela APA
         self.tabela_apa = QTableWidget()
         self.tabela_apa.setColumnCount(3)
@@ -41,7 +38,15 @@ class APA2BibtexWidget(QWidget):
         # Botão Salvar BibTeX
         self.btn_salvar_bibtex = QPushButton("Salvar BibTeX")
         self.btn_salvar_bibtex.clicked.connect(self.salvar_bibtex)
- 
+
+        # Botão para carregar arquivo .bib manualmente
+        self.btn_carregar_bib = QPushButton("Carregar arquivo .bib manualmente")
+        self.btn_carregar_bib.clicked.connect(self.carregar_bibtex_manual)
+
+        # Layout horizontal para os dois botões
+        botoes_bibtex_layout = QHBoxLayout()
+        botoes_bibtex_layout.addWidget(self.btn_salvar_bibtex)
+        botoes_bibtex_layout.addWidget(self.btn_carregar_bib)
 
 
         # Label e área de texto para resultado BibTeX
@@ -51,13 +56,36 @@ class APA2BibtexWidget(QWidget):
         main_layout.addWidget(self.output_edit)
 
 
-        main_layout.addWidget(self.btn_salvar_bibtex)
+
+        # Adiciona o layout dos botões ao layout principal
+        main_layout.addLayout(botoes_bibtex_layout)
 
 
 
 
         self.setLayout(main_layout)
         self.resize(900, 700)
+
+
+    def carregar_bibtex_manual(self):
+        arquivo_bib, _ = QFileDialog.getOpenFileName(
+            self,
+            "Selecionar arquivo .bib",
+            str(Path.home()),
+            "Arquivos BibTeX (*.bib)"
+        )
+
+        if arquivo_bib:
+            try:
+                with open(arquivo_bib, 'r', encoding='utf-8') as f:
+                    conteudo_bib = f.read()
+                self.output_edit.setPlainText(conteudo_bib)
+                QMessageBox.information(self, "BibTeX carregado", "Arquivo .bib carregado com sucesso.")
+                self.salvar_bibtex()
+            except Exception as e:
+                QMessageBox.critical(self, "Erro", f"Erro ao carregar o arquivo .bib:\n{e}")
+
+     
 
     def carregar_excel(self):
         # Usa sempre self.sheet_csv_url, que é uma URL fixa
@@ -69,11 +97,15 @@ class APA2BibtexWidget(QWidget):
             if "Ref" not in df.columns:
                 QMessageBox.critical(self, "Erro", "A coluna 'Ref' não foi encontrada na planilha.")
                 return
-            referencias = "\n\n".join(str(ref).strip() for ref in df["Ref"] if pd.notna(ref))
+            referencias = "\n\n".join(
+                str(ref).strip() for ref in df["Ref"]
+                if pd.notna(ref) and not str(ref).strip().startswith(".")
+            )
+
             self.input_edit.setPlainText(referencias)
             self.converter()
             self.salvar_bibtex()
-
+ 
         except Exception as e:
             QMessageBox.critical(self, "Erro", f"Erro ao ler a planilha do Google Sheets:\n{e}")
 
@@ -121,6 +153,7 @@ class APA2BibtexWidget(QWidget):
             QMessageBox.warning(self, "Aviso", "Não há referências para converter.")
             return
         entradas = re.split(r'\n{2,}', entrada)
+        entradas = [e for e in entradas if not e.strip().startswith(".")]
 
         referencias_separadas = []
         for entrada in entradas:
@@ -129,12 +162,23 @@ class APA2BibtexWidget(QWidget):
 
         self.tabela_apa.setRowCount(len(referencias_separadas))
         for i, ref in enumerate(referencias_separadas):
-            match = re.search(r'^(.*?)\s*\((\d{4})\)', ref)
-            nome = match.group(1).strip() if match else ""
-            ano = match.group(2) if match else ""
+            # Regex que captura nome, ano e o resto da referência após o ano
+            match = re.search(r'^(.*?)\s*\((\d{4})\)\.?\s*(.*)$', ref)
+            if match:
+                nome = match.group(1).strip()
+                ano = match.group(2)
+                titulo = match.group(3).strip()  # Título após o ano e possível ponto removido
+            else:
+                nome = ""
+                ano = ""
+                titulo = ""
+
+            # Você pode juntar nome e título se quiser exibir separados ou em uma coluna só
+            # Por exemplo, na coluna 'Nome' deixar só o nome, e na 'Referência' o título completo
             item_nome = QTableWidgetItem(nome)
             item_ano = QTableWidgetItem(ano)
-            item_ref = QTableWidgetItem(ref)
+            item_ref = QTableWidgetItem(titulo if titulo else ref)  # se título vazio, usa ref inteiro
+
             item_ref.setTextAlignment(Qt.AlignTop)
             item_ref.setToolTip(ref)
 
@@ -161,9 +205,10 @@ class APA2BibtexWidget(QWidget):
         self.df_bibtex = pd.DataFrame(lista_campos)
 
         self.output_edit.setPlainText(bibtex_total.strip())
-     #   self.tabs.setCurrentWidget(self.tab_bibtex)
+        # self.tabs.setCurrentWidget(self.tab_bibtex)
 
         shared_data.df_bibtex = self.output_edit
+
 
     def exportar_csv(self):
         desktop = QStandardPaths.writableLocation(QStandardPaths.DesktopLocation)

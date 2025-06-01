@@ -2,6 +2,10 @@ import sys
 import re
 import time
 import os
+import os
+import csv
+from PyQt5.QtWidgets import QPushButton, QMessageBox
+from PyQt5.QtCore import QStandardPaths
 
 from config import sheet_csv_url
 import traceback
@@ -25,7 +29,10 @@ class GoogleSheetsViewer(QMainWindow):
         self.setWindowTitle("Visualizador de Planilha Google")
         self.setGeometry(100, 100, 1100, 700)
         self.sheet_csv_url = (
-"https://docs.google.com/spreadsheets/d/1XuGWm_gDG5edw9YkznTQGABTBah1Ptz9lfstoFdGVbA/export?format=csv&gid=49303292")
+"https://docs.google.com/spreadsheets/d/1Kf5_DYjTErSNpVjPoKG0HIyKfAhBfuVM_Qt4a0EOMYQ/export?format=csv&gid=49303292")
+        
+        
+
         self.dataframe = pd.DataFrame()
         self.selected_region = None
         self.init_ui()
@@ -87,7 +94,7 @@ class GoogleSheetsViewer(QMainWindow):
         self.region_label.setContentsMargins(0, 0, 0, 0)
         left_layout.addWidget(self.region_label)
 
-        self.metrics_label = QLabel("")
+        self.metrics_label = QLabel("hh")
         self.metrics_label.setStyleSheet("font-style: italic; color: gray;")
         self.metrics_label.setContentsMargins(0, 0, 0, 0)
         left_layout.addWidget(self.metrics_label)
@@ -107,11 +114,11 @@ class GoogleSheetsViewer(QMainWindow):
 
         self.refresh_button = QPushButton("🔄")
         self.refresh_button.clicked.connect(self.refresh_data)
-        button_layout.addWidget(self.refresh_button)
+      #  button_layout.addWidget(self.refresh_button)
 
         self.reload_button = QPushButton("🔄 Recarregar Dados")
         self.reload_button.clicked.connect(self.load_data)
-        button_layout.addWidget(self.reload_button)
+       # button_layout.addWidget(self.reload_button)
 
         self.export_button = QPushButton("📀 Exportar CSV")
         self.export_button.clicked.connect(self.export_to_csv)
@@ -135,7 +142,6 @@ class GoogleSheetsViewer(QMainWindow):
         self.tabs.addTab(self.visualizador_widget, "Visualizador de Planilha")
 
         # === Aba: Métricas ===
-        # === Aba: Métricas com subabas ===
         self.aba_metricas = QWidget()
         layout_metricas = QVBoxLayout(self.aba_metricas)
         layout_metricas.setContentsMargins(10, 10, 10, 10)
@@ -159,7 +165,7 @@ class GoogleSheetsViewer(QMainWindow):
         self.export_metricas_button.clicked.connect(self.exportar_metricas_para_csv)
         layout_visao_geral.addWidget(self.export_metricas_button)
 
-        self.subtabs_metricas.addTab(self.subaba_visao_geral, " Visão Geral")
+        
 
         # Subaba 2: Detalhes
         self.subaba_detalhes = QWidget()
@@ -171,13 +177,18 @@ class GoogleSheetsViewer(QMainWindow):
         self.metricas_detalhes_textedit.setReadOnly(True)
         layout_detalhes.addWidget(self.metricas_detalhes_textedit)
 
- 
+        # Botão para salvar o conteúdo da aba detalhes em CSV
+        self.btn_salvar_csv = QPushButton("Salvar CSV")
+        layout_detalhes.addWidget(self.btn_salvar_csv)
+
+        self.btn_salvar_csv.clicked.connect(self.salvar_detalhes_em_csv)
+
 
         self.subtabs_metricas.addTab(self.subaba_detalhes, " Detalhes")
-
+        self.subtabs_metricas.addTab(self.subaba_visao_geral, " Visão Geral")
         # Adiciona a aba Métricas (com subabas internas) no widget principal
         self.tabs.addTab(self.aba_metricas, " Métricas")
-
+    
 
         # === Aba: Bibtex com abas internas ===
         self.aba_bibtex = QWidget()
@@ -195,7 +206,7 @@ class GoogleSheetsViewer(QMainWindow):
         self.entrada_bibtex_textedit = QTextEdit()
         layout_entrada.addWidget(self.entrada_bibtex_textedit)
 
-
+      
       #  self.tabs_bibtex_internos.addTab(self.entrada_bibtex_widget, "Entrada Bibtex")
 
         # --- Aba 2: Visualização Formatada ---
@@ -267,6 +278,7 @@ class GoogleSheetsViewer(QMainWindow):
             QMessageBox.information(self, "Sucesso", f"Arquivo salvo com sucesso em:\n{file_path}")
         except Exception as e:
             QMessageBox.critical(self, "Erro", f"Erro ao salvar arquivo:\n{e}")
+    
 
 
     def export_full_references(self):
@@ -367,6 +379,31 @@ class GoogleSheetsViewer(QMainWindow):
             return f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv&gid={gid}"
         else:
             return url  # retorna como está se não for reconhecido
+        
+
+    def exportar_metricas_detalhepara_csv(self):
+        texto = self.metricas_textedit.toPlainText().strip()
+        if not texto:
+            QMessageBox.warning(self, "Aviso", "Não há métricas para exportar.")
+            return
+        try:
+            exportar_metricas_texto_para_csv(texto)
+
+            desktop = QStandardPaths.writableLocation(QStandardPaths.DesktopLocation)
+
+            # Caminho para a pasta PYMT dentro da área de trabalho
+            pasta_pymt = os.path.join(desktop, "PYMT")
+
+            # Cria a pasta se ela não existir
+            os.makedirs(pasta_pymt, exist_ok=True)
+
+            # Caminho completo do arquivo a ser salvo
+            
+            file_path = os.path.join(pasta_pymt, "metricas_detalhe.csv")
+
+            QMessageBox.information(self, "Sucesso", f"Métricas exportadas com sucesso para:\n{file_path}")
+        except Exception as e:
+            QMessageBox.critical(self, "Erro", f"Erro ao salvar o CSV:\n{e}")
     def exportar_metricas_para_csv(self):
         texto = self.metricas_textedit.toPlainText().strip()
         if not texto:
@@ -528,6 +565,107 @@ class GoogleSheetsViewer(QMainWindow):
             action.setData(autor)
             self.author_menu.addAction(action)
             self.autor_actions.append(action)
+
+
+    def salvar_detalhes_em_csv(self):
+        texto = self.metricas_detalhes_textedit.toPlainText()
+        desktop_path = QStandardPaths.writableLocation(QStandardPaths.DesktopLocation)
+        pasta_pymt = os.path.join(desktop_path, "PYMT")
+        if not os.path.exists(pasta_pymt):
+            os.makedirs(pasta_pymt)
+        arquivo_csv = os.path.join(pasta_pymt, "detalhes_salvos.csv")
+
+        linhas = texto.splitlines()
+
+        dados = {
+            "Tipos de publicação": [],
+            "Tipos de delineamento": [],
+            "Países mais frequentes": [],
+            "Regiões mais frequentes": [],
+            "Autores mais frequentes": []
+        }
+
+        categoria_atual = None
+
+        padrao_generico = re.compile(r'-\s*(.+?):\s*(\d+)\s*\(([\d\.]+)%\)')
+        padrao_pais = re.compile(r'-\s*(.+?):\s*(\d+)\s*referências\s*\(([\d\.]+)%\)')
+        padrao_regiao = re.compile(r'-\s*(.+?):\s*(\d+)')
+        padrao_autor = re.compile(r'-\s*(.+?):\s*(\d+)\s*aparições')
+
+        for linha in linhas:
+            linha = linha.strip()
+            if linha.startswith("📚"):
+                categoria_atual = "Tipos de publicação"
+            elif linha.startswith("🧪"):
+                categoria_atual = "Tipos de delineamento"
+            elif linha.startswith("🌍"):
+                categoria_atual = "Países mais frequentes"
+            elif linha.startswith("🗺️"):
+                categoria_atual = "Regiões mais frequentes"
+            elif linha.startswith("👤"):
+                categoria_atual = "Autores mais frequentes"
+            elif linha.startswith("-") and categoria_atual:
+                if categoria_atual in ("Tipos de publicação", "Tipos de delineamento"):
+                    m = padrao_generico.match(linha)
+                    if m:
+                        nome, valor, perc = m.groups()
+                        dados[categoria_atual].append([nome, int(valor), float(perc)])
+                elif categoria_atual == "Países mais frequentes":
+                    m = padrao_pais.match(linha)
+                    if m:
+                        nome, valor, perc = m.groups()
+                        dados[categoria_atual].append([nome, int(valor), float(perc)])
+                elif categoria_atual == "Regiões mais frequentes":
+                    m = padrao_regiao.match(linha)
+                    if m:
+                        nome, valor = m.groups()
+                        dados[categoria_atual].append([nome, int(valor), 0.0])
+                elif categoria_atual == "Autores mais frequentes":
+                    m = padrao_autor.match(linha)
+                    if m:
+                        nome, valor = m.groups()
+                        dados[categoria_atual].append([nome, int(valor), 0.0])
+
+        # Calcular % para Regiões
+        regioes = dados["Regiões mais frequentes"]
+        total_regioes = sum(item[1] for item in regioes)
+        if total_regioes > 0:
+            for item in regioes:
+                item[2] = round(item[1] / total_regioes * 100, 1)
+
+        # Ajustar strings para CSV
+        for categoria in dados:
+            for i, item in enumerate(dados[categoria]):
+                nome, valor, perc = item
+                perc_str = f"{perc}%" if perc > 0 else ""
+                dados[categoria][i] = [nome, str(valor), perc_str]
+
+        # Alinhar colunas
+        max_len = max(len(lst) for lst in dados.values())
+        for key in dados:
+            while len(dados[key]) < max_len:
+                dados[key].append(["", "", ""])
+
+        try:
+            with open(arquivo_csv, mode='w', newline='', encoding='utf-8') as file:
+                writer = csv.writer(file)
+                header = []
+                for categoria in dados.keys():
+                    header.extend([f"{categoria}", "Valor", "% do total"])
+                writer.writerow(header)
+
+                for i in range(max_len):
+                    row = []
+                    for categoria in dados.keys():
+                        row.extend(dados[categoria][i])
+                    writer.writerow(row)
+
+            QMessageBox.information(self, "Sucesso", f"Arquivo salvo em:\n{arquivo_csv}")
+        except Exception as e:
+            QMessageBox.critical(self, "Erro ao salvar", f"Erro: {str(e)}")
+
+
+
     def toggle_autor_ordering(self):
         self.order_by_frequency = not self.order_by_frequency
         self.update_author_menu()
@@ -544,18 +682,19 @@ class GoogleSheetsViewer(QMainWindow):
         if not autores:
             self.region_label.setText("Visualizando: Geral (Todas)")
             self.populate_table()
-            print("Filtro de autor removido, mostrando todos.")
+         
             return
         df = self.dataframe.copy()
         df_filtrado = df[df["Autores"].isin(autores)]
         self.region_label.setText(f"Visualizando: Autor(es) - {', '.join(autores)}")
         self.populate_table_custom(df_filtrado)
-        print(f"Filtro aplicado: Autor(es) - {', '.join(autores)}")
+       
+
     def filtrar_por_regiao(self, regiao):
         self.selected_region = regiao
         self.region_label.setText(f"Visualizando: {regiao if regiao else 'Geral (Todas)'}")
         self.populate_table()
-        print(f"Filtro aplicado: {regiao if regiao else 'Todas as regiões'}")
+       
     def populate_table(self):
         df = self.dataframe
         if self.selected_region:
