@@ -17,7 +17,8 @@ import matplotlib.pyplot as plt
 import re
 from processador_referencias import extrair_campos_apa, extrair_autores_completos
 
-
+from PyQt5.QtWidgets import QLabel
+from PyQt5.QtGui import QPixmap
 
 
 def analyze_bibtex():
@@ -275,21 +276,21 @@ class BibtexViewer(QMainWindow):
 
 
     def export_current_plot(self):
-        widget = self.tabs.widget(self.tabs.count() - 1)
-        if widget is None:
+        main_widget = self.tabs.widget(self.tabs.currentIndex())
+        if main_widget is None:
             QMessageBox.warning(self, "Erro", "Nenhum gráfico disponível para exportar.")
             return
 
-        subtabs = widget.findChild(QTabWidget)
-        if subtabs is None:
-            QMessageBox.warning(self, "Erro", "Sub-abas de gráfico não encontradas.")
-            return
+        subtabs = main_widget.findChild(QTabWidget)
+        if subtabs:
+            current_index = subtabs.currentIndex()
+            current_tab_name = subtabs.tabText(current_index)
+            current_widget = subtabs.widget(current_index)
+        else:
+            current_tab_name = self.tabs.tabText(self.tabs.currentIndex())
+            current_widget = main_widget
 
-        current_tab_name = subtabs.tabText(subtabs.currentIndex())
-        fig = self.figures.get(current_tab_name, None)
-        if fig is None:
-            QMessageBox.warning(self, "Erro", "Não foi possível encontrar o gráfico para exportar.")
-            return
+        print(f"[DEBUG] Tipo do widget atual: {type(current_widget)}")
 
         save_folder = Path.home() / "Desktop" / "PYMT"
         save_folder.mkdir(parents=True, exist_ok=True)
@@ -301,9 +302,46 @@ class BibtexViewer(QMainWindow):
                 break
             n += 1
 
-        fig.savefig(str(file_path), dpi=300)
-        QMessageBox.information(self, "Sucesso", f"Gráfico salvo em:\n{file_path}")
+        try:
+            fig_or_wc = self.figures.get(current_tab_name, None)
 
+            if fig_or_wc:
+                print(f"[DEBUG] Encontrou figura ou nuvem em self.figures com chave '{current_tab_name}'")
+                if hasattr(fig_or_wc, 'savefig'):
+                    fig_or_wc.savefig(str(file_path), dpi=300)
+                    QMessageBox.information(self, "Sucesso", f"Gráfico salvo em:\n{file_path}")
+                    return
+                elif hasattr(fig_or_wc, 'to_file'):
+                    fig_or_wc.to_file(str(file_path))
+                    QMessageBox.information(self, "Sucesso", f"Nuvem salva em:\n{file_path}")
+                    return
+
+            from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
+            if isinstance(current_widget, FigureCanvasQTAgg):
+                fig = current_widget.figure
+                fig.savefig(str(file_path), dpi=300)
+                QMessageBox.information(self, "Sucesso", f"Gráfico salvo em:\n{file_path}")
+                return
+
+            if isinstance(current_widget, QLabel):
+                pixmap = current_widget.pixmap()
+                if pixmap:
+                    pixmap.save(str(file_path))
+                    QMessageBox.information(self, "Sucesso", f"Nuvem salva em:\n{file_path}")
+                    return
+
+            # Debug adicional para tentar salvar imagem se existir método save, grab, etc
+            if hasattr(current_widget, 'grab'):
+                img = current_widget.grab()
+                if img and not img.isNull():
+                    img.save(str(file_path))
+                    QMessageBox.information(self, "Sucesso", f"Imagem da aba salva em:\n{file_path}")
+                    return
+
+            QMessageBox.warning(self, "Erro", f"Não foi possível identificar o tipo do gráfico para exportar.\nWidget: {type(current_widget)}")
+
+        except Exception as e:
+            QMessageBox.critical(self, "Erro", f"Erro ao exportar o gráfico:\n{e}")
 
 
     def exportar_tabela_atual(self):
@@ -322,8 +360,9 @@ class BibtexViewer(QMainWindow):
             return
 
         try:
+            file_path.parent.mkdir(parents=True, exist_ok=True)
             with open(file_path, 'w', encoding='utf-8') as f:
-                if tab_title == "publicações_completas":  # aba Publicações completas
+                if tab_title == "publicações_completas":
                     desired_columns = ["Ano", "Autores", "Título"]
                     col_indices = []
                     for col in range(table.columnCount()):
@@ -331,30 +370,23 @@ class BibtexViewer(QMainWindow):
                         if header_text in desired_columns:
                             col_indices.append(col)
 
-                    # Escreve cabeçalho com coluna numeração
                     headers = ["#", *desired_columns]
                     f.write(','.join(headers) + '\n')
 
-                    # Escreve dados — **incluindo todas as linhas, sem pular**
                     for row in range(table.rowCount()):
                         row_data = [str(row + 1)]
                         for col in col_indices:
                             item = table.item(row, col)
                             text = item.text().strip() if item else ""
                             if text == "N/A":
-                                text = ""  # substitui "N/A" por vazio
-
-                            # Colocar aspas em autores e título para CSV, e escapar aspas internas
+                                text = ""
                             header = table.horizontalHeaderItem(col).text()
                             if header in ("Autores", "Título") and text:
                                 text = text.replace('"', '""')
                                 text = f'"{text}"'
                             row_data.append(text)
-
                         f.write(','.join(row_data) + '\n')
-
                 else:
-                    # Para as outras abas salva tudo normalmente
                     headers = [table.horizontalHeaderItem(i).text() for i in range(table.columnCount())]
                     f.write(','.join(headers) + '\n')
                     for row in range(table.rowCount()):
@@ -367,6 +399,9 @@ class BibtexViewer(QMainWindow):
             QMessageBox.information(self, "Sucesso", f"Tabela exportada como:\n{file_path}")
         except Exception as e:
             QMessageBox.critical(self, "Erro", f"Erro ao exportar CSV:\n{e}")
+
+
+
 
 
 
