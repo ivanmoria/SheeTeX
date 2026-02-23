@@ -1,0 +1,419 @@
+AALBERS, Sonja et al. Music therapy for depression. 2017, https://doi.org/10.1002/14651858.cd004517.pub3. DOI: Cochrane Database of Systematic Reviews.
+
+MARATOS, A et al. Music therapy for depression. 2003, https://doi.org/10.1002/14651858.cd004517. DOI: The Cochrane Database of Systematic Reviews.
+
+ABDALLAH, Samer et al. Information dynamics: patterns of expectation and surprise in the perception of music. 2009, https://doi.org/10.1080/09540090902733756. DOI: Connection Science.
+
+AGRES, Kat et al. Music and motion-detection: A game prototype for rehabilitation and strengthening in the elderly. 2018, https://doi.org/10.1109/icot.2017.8336097. DOI: 2017 International Conference on Orange Technologies (ICOT).
+
+NAGLER, Peter et al. Singapore, Science, and Angewandte. 2024, https://doi.org/10.1002/nadc.20244143046. DOI: Nachrichten aus der Chemie.
+
+AGRES, Kat et al. Harmonic Structure Predicts the Enjoyment of Uplifting Trance Music. 2017, https://doi.org/10.3389/fpsyg.2016.01999. DOI: Frontiers in Psychology.
+
+AGRES, Kat et al. A novel music-based game with motion capture to support cognitive and motor function in the elderly. 2019, https://doi.org/10.1109/cig.2019.8847993. DOI: 2019 IEEE Conference on Games (CoG).
+
+ANAGNOSTOPOULOU, Christina et al. Can computational music analysis be both musical and computational?. 2010, https://doi.org/10.1080/17459737.2010.520455. DOI: Journal of Mathematics and Music.
+
+ARIAS, Pablo et al. Effect of Rhythmic Auditory Stimulation on Gait in Parkinsonian Patients with and without Freezing of Gait. 2010, https://doi.org/10.1371/journal.pone.0009675. DOI: PLoS ONE.
+
+BAGGA, Shreyus et al. instruMentor: An Interactive Robot for Musical Instrument Tutoring. 2019, https://doi.org/10.1007/978-3-030-23807-0_25. DOI: Lecture Notes in Computer Science.
+
+UNKNOWN AUTHOR et al. Unknown Title. 2017, https://doi.org/10.15180/170814/004. DOI: The Science Museum.
+
+BAUER, G et al. Varieties of the locked-in syndrome. 2004, https://doi.org/10.1007/bf00313105. DOI: Journal of Neurology.
+
+BÉGEL, Valentin et al. Music Games: Potential Application and Considerations for Rhythmic Training. 2017, https://doi.org/10.3389/fnhum.2017.00273. DOI: Frontiers in Human Neuroscience.
+
+BELPAEME, Tony et al. Social robots for education: A review. 2018, https://doi.org/10.1126/scirobotics.aat5954. DOI: Science Robotics.
+
+UNKNOWN AUTHOR et al. Semiotic Foundations of HCI and UX Design. 2015, https://doi.org/10.1201/b18059-4. DOI: Cross-Cultural Human-Computer Interaction and User Experience Design.
+
+COHEN, Miri Weiss et al. Hand Rehabilitation via Gesture Recognition Using Leap Motion Controller. 2018, https://doi.org/10.1109/hsi.2018.8431349. DOI: 2018 11th International Conference on Human System Interaction (HSI).
+
+BHAT, Soumitra et al. TouchTone. 2010, https://doi.org/10.1145/1709886.1709955. DOI: Proceedings of the fourth international conference on Tangible, embedded, and embodied interaction.
+
+UNKNOWN AUTHOR et al. Biomarkers and surrogate endpoints: Preferred definitions and conceptual framework. 2002, https://doi.org/10.1067/mcp.2001.113989. DOI: Clinical Pharmacology & Therapeutics.
+
+BOER, Diana et al. Music listening in families and peer groups: benefits for young people's social cohesion and emotional well-being across four cultures. 2014, https://doi.org/10.3389/fpsyg.2014.00392. DOI: Frontiers in Psychology.
+
+UNKNOWN AUTHOR et al. Cochrane Database of Systematic Reviews. 2003, https://doi.org/10.1002/14651858. DOI: Wiley.
+
+DILEO, Cheryl et al. Music interventions for improving psychological and physical outcomes in cancer patients. 2008, https://doi.org/10.1002/14651858.cd006911. DOI: Cochrane Database of Systematic Reviews.
+
+UNKNOWN AUTHOR et al. Figure 1.13 US GDP and trademark applications at the US Patent and Trademark Office, 2003-13. 2013, https://doi.org/10.1787/888932889535. DOI: Organisation for Economic Co-Operation and Development (OECD).
+
+LENG, Hoo Yong et al. A User-Defined Gesture Set for Music Interaction in Immersive Virtual Environment. 2017, https://doi.org/10.1145/3077343.3077348. DOI: Proceedings of the 3rd International Conference on Human-Computer Interaction and User Experience in Indonesia.
+
+STUDZINSKI, George P et al. Differentiation and Cell Survival of Myeloid Leukemia Cells. 2012, https://doi.org/10.1155/2012/370375. DOI: Leukemia Research and Treatment.
+
+WHEELER, B. L et al. Bruscia, K. E., Ed. (1998). The dynamics of music psychotherapy. Gilsum, NH: Barcelona Publishers. 584 pages. ISBN 1-891278-05-3. $45.00. 2013, https://doi.org/10.1093/mtp/17.2.104. DOI: Music Therapy Perspectives.
+
+BURGER, Birgitta et al. Influences of Rhythm- and Timbre-Related Musical Features on Characteristics of Music-Induced Movement. 2013, https://doi.org/10.3389/fpsyg.2013.00183. DOI: Frontiers in Psychology.
+
+BURGER, Franziska et al. Fostering Relatedness Between Children and Virtual Agents Through Reciprocal Self-disclosure. 2017, https://doi.org/10.1007/978-3-319-67468-1_10. DOI: Communications in Computer and Information Science.
+
+MALLIOS, Stavros et al. An Intelligent SPN Dialogue Model for Extracting Non-Measurable Pathological Symptoms. 2017, https://doi.org/10.1109/ictai.2016.0119. DOI: 2016 IEEE 28th International Conference on Tools with Artificial Intelligence (ICTAI).
+
+CANNAM, Chris et al. Sonic visualiser. 2010, https://doi.org/10.1145/1873951.1874248. DOI: Proceedings of the 18th ACM international conference on Multimedia.
+
+CANTISANI, Giorgia et al. MAD-EEG: an EEG dataset for decoding auditory attention to a target instrument in polyphonic music. 2019, https://doi.org/10.21437/smm.2019-11. DOI: Workshop on Speech, Music and Mind (SMM 2019).
+
+CHANDA, Mona Lisa et al. The neurochemistry of music. 2013, https://doi.org/10.1016/j.tics.2013.02.007. DOI: Trends in Cognitive Sciences.
+
+CHEEVER, Thomas et al. NIH/Kennedy Center Workshop on Music and the Brain: Finding Harmony. 2018, https://doi.org/10.1016/j.neuron.2018.02.004. DOI: Neuron.
+
+CHEW, Elaine et al. Tonality. 2013, https://doi.org/10.1007/978-1-4614-9475-1_1. DOI: International Series in Operations Research & Management Science.
+
+CHEW, Elaine et al. Interactive multi-scale visualizations of tonal evolution in MuSA.RT Opus 2. 2005, https://doi.org/10.1145/1095534.1095545. DOI: Computers in Entertainment.
+
+CONKLIN, Darrell et al. Discovery of distinctive patterns in music. 2018, https://doi.org/10.3233/ida-2010-0438. DOI: Intelligent Data Analysis.
+
+CROOM, Adam M et al. Music practice and participation for psychological well-being: A review of how music influences positive emotion, engagement, relationships, meaning, and accomplishment. 2014, https://doi.org/10.1177/1029864914561709. DOI: Musicae Scientiae.
+
+CROSS, Ian et al. Music and communication in music psychology. 2014, https://doi.org/10.1177/0305735614543968. DOI: Psychology of Music.
+
+HALLAM, Susan et al. The Oxford Handbook of Music Psychology, Second Edition. 2015, https://doi.org/10.1093/oxfordhb/9780198722946.001.0001. DOI: Oxford University Press.
+
+DALLA BELLA, Simone et al. The use of rhythm in rehabilitation for patients with movement disorders. 2020, https://doi.org/10.1016/b978-0-12-817422-7.00015-8. DOI: Music and the Aging Brain.
+
+BELLA, Simone Dalla et al. Gait improvement via rhythmic stimulation in Parkinson’s disease is linked to rhythmic skills. 2017, https://doi.org/10.1038/srep42005. DOI: Scientific Reports.
+
+KREJTZ, Krzysztof et al. Eye tracking cognitive load using pupil diameter and microsaccades with fixed gaze. 2018, https://doi.org/10.1371/journal.pone.0203629. DOI: PLOS ONE.
+
+DUCHOWSKI, Andrew T et al. The Index of Pupillary Activity. 2018, https://doi.org/10.1145/3173574.3173856. DOI: Proceedings of the 2018 CHI Conference on Human Factors in Computing Systems.
+
+DUDZIK, Bernd et al. Artificial Empathic Memory. 2018, https://doi.org/10.1145/3267799.3267801. DOI: Proceedings of the 2018 Workshop on Understanding Subjective Attributes of Data, with the Focus on Evoked Emotions.
+
+BELLA, Simone Dalla et al. Effects of musically cued gait training in Parkinson's disease: beyond a motor benefit. 2015, https://doi.org/10.1111/nyas.12651. DOI: Annals of the New York Academy of Sciences.
+
+UNKNOWN AUTHOR et al. Proceedings of the National Academy of Sciences. 2024, https://doi.org/10.1073/pnas. DOI: Proceedings of the National Academy of Sciences.
+
+BELLA, Simone Dalla et al. Individualization of music‐based rhythmic auditory cueing in Parkinson's disease. 2018, https://doi.org/10.1111/nyas.13859. DOI: Annals of the New York Academy of Sciences.
+
+DAUVERGNE, Celia et al. Home-based training of rhythmic skills with a serious game in Parkinson's disease: Usability and acceptability. 2018, https://doi.org/10.1016/j.rehab.2018.08.002. DOI: Annals of Physical and Rehabilitation Medicine.
+
+DE WITTE, Martina et al. Music therapy for stress reduction: a systematic review and meta-analysis. 2020, https://doi.org/10.1080/17437199.2020.1846580. DOI: Health Psychology Review.
+
+DECETY, Jean et al. A neurobehavioral evolutionary perspective on the mechanisms underlying empathy. 2012, https://doi.org/10.1016/j.pneurobio.2012.05.001. DOI: Progress in Neurobiology.
+
+COCHEN DE COCK, V et al. Rhythmic abilities and musical training in Parkinson’s disease: do they help?. 2018, https://doi.org/10.1038/s41531-018-0043-7. DOI: npj Parkinson's Disease.
+
+DOTOV, Dobromir G et al. The role of interaction and predictability in the spontaneous entrainment of movement. 2019, https://doi.org/10.1037/xge0000609. DOI: Journal of Experimental Psychology: General.
+
+DUREHA, Anukriti et al. An Accurate Algorithm for Generating a Music Playlist based on Facial Expressions. 2014, https://doi.org/10.5120/17557-8163. DOI: International Journal of Computer Applications.
+
+BARBER, David et al. Bayesian Time Series Models. 2011, https://doi.org/10.1017/cbo9780511984679. DOI: Cambridge University Press.
+
+UNKNOWN AUTHOR et al. Figure 1: Translation process from MIDI format (displayed using MIDI Toolbox (Eerola & Toiviainen, 2004)) to Basic RNN encoding for a simple monophonic melody. 2023, https://doi.org/10.7717/peerj-cs.1356/fig-1. DOI: PeerJ.
+
+EFFENBERG, Alfred O et al. Movement Sonification: Effects on Motor Learning beyond Rhythmic Adjustments. 2016, https://doi.org/10.3389/fnins.2016.00219. DOI: Frontiers in Neuroscience.
+
+EHRLICH, Stefan K et al. A closed-loop, music-based brain-computer interface for emotion mediation. 2019, https://doi.org/10.1371/journal.pone.0213516. DOI: PLOS ONE.
+
+FACHNER, Jörg C et al. “Telling me not to worry…” Hyperscanning and Neural Dynamics of Emotion Processing During Guided Imagery and Music. 2019, https://doi.org/10.3389/fpsyg.2019.01561. DOI: Frontiers in Psychology.
+
+FAIRHURST, Merle T et al. Being and Feeling in Sync with an Adaptive Virtual Partner: Brain Mechanisms Underlying Dynamic Cooperativity. 2012, https://doi.org/10.1093/cercor/bhs243. DOI: Cerebral Cortex.
+
+FAIRHURST, Merle T et al. Distinguishing “self” from “other” in a dynamic synchronization task with an adaptive virtual partner. 2019, https://doi.org/10.1101/625061. DOI: openRxiv.
+
+FANCOURT, Daisy et al. The psychoneuroimmunological effects of music: A systematic review and a new model. 2013, https://doi.org/10.1016/j.bbi.2013.10.014. DOI: Brain, Behavior, and Immunity.
+
+FORKAN, Rebecca et al. Exercise Adherence Following Physical Therapy Intervention in Older Adults With Impaired Balance. 2017, https://doi.org/10.1093/ptj/86.3.401. DOI: Physical Therapy.
+
+FOUBERT, Katrien et al. Impaired Maintenance of Interpersonal Synchronization in Musical Improvisations of Patients with Borderline Personality Disorder. 2017, https://doi.org/10.3389/fpsyg.2017.00537. DOI: Frontiers in Psychology.
+
+FRID, Emma et al. Accessible Digital Musical Instruments—A Review of Musical Interfaces in Inclusive Music Practice. 2019, https://doi.org/10.3390/mti3030057. DOI: Multimodal Technologies and Interaction.
+
+FRIEDMAN, N et al. MusicGlove: Motivating and quantifying hand movement rehabilitation by using functional grips to play music. 2011, https://doi.org/10.1109/iembs.2011.6090659. DOI: 2011 Annual International Conference of the IEEE Engineering in Medicine and Biology Society.
+
+FRITZ, Julie M et al. Does Adherence to the Guideline Recommendation for Active Treatments Improve the Quality of Care for Patients With Acute Low Back Pain Delivered by Physical Therapists?. 2009, https://doi.org/10.1097/mlr.0b013e318070c6cd. DOI: Medical Care.
+
+FRITZ, Thomas Hans et al. Musical agency reduces perceived exertion during strenuous physical performance. 2013, https://doi.org/10.1073/pnas.1217252110. DOI: Proceedings of the National Academy of Sciences.
+
+GOLD, Christian et al. Individual Music Therapy for Mental Health Care Clients with Low Therapy Motivation: Multicentre Randomised Controlled Trial. 2013, https://doi.org/10.1159/000348452. DOI: Psychotherapy and Psychosomatics.
+
+ECKER, L et al. A data-driven approach for the identification of nonlinear state-dependent switched systems using expectation-maximization. 2023, https://doi.org/10.1109/icarcv57592.2022.10004300. DOI: 2022 17th International Conference on Control, Automation, Robotics and Vision (ICARCV).
+
+GRAHN, Jessica A et al. Rhythm and Beat Perception in Motor Areas of the Brain. 2007, https://doi.org/10.1162/jocn.2007.19.5.893. DOI: Journal of Cognitive Neuroscience.
+
+MOFFITT, Liz et al. Guided Imagery and Music (GIM) and Music Imagery Methods for Individual and Group Therapy edited by Denise Grocke and Torben Moe. 2020, https://doi.org/10.47513/mmd.v8i2.491. DOI: Music and Medicine.
+
+HAHNA, Nicole D et al. Music technology usage in music therapy: A survey of practice. 2012, https://doi.org/10.1016/j.aip.2012.08.001. DOI: The Arts in Psychotherapy.
+
+HAN, Byeong-jun et al. Music emotion classification and context-based music recommendation. 2009, https://doi.org/10.1007/s11042-009-0332-6. DOI: Multimedia Tools and Applications.
+
+HERHOLZ, Sibylle C et al. Musical Training as a Framework for Brain Plasticity: Behavior, Function, and Structure. 2012, https://doi.org/10.1016/j.neuron.2012.10.011. DOI: Neuron.
+
+FUJIOKA, Takako et al. Internalized Timing of Isochronous Sounds Is Represented in Neuromagnetic Beta Oscillations. 2012, https://doi.org/10.1523/jneurosci.4107-11.2012. DOI: The Journal of Neuroscience.
+
+HERREMANS, Dorien et al. MorpheuS: automatic music generation with recurrent pattern constraints and tension profiles. 2017, https://doi.org/10.1109/tencon.2016.7848007. DOI: 2016 IEEE Region 10 Conference (TENCON).
+
+GERETSEGGER, M et al. Common Characteristics of Improvisational Approaches in Music Therapy for Children with Autism Spectrum Disorder: Developing Treatment Guidelines. 2015, https://doi.org/10.1093/jmt/thv005. DOI: Journal of Music Therapy.
+
+GHAI, Shashank et al. Effect of rhythmic auditory cueing on parkinsonian gait: A systematic review and meta-analysis. 2018, https://doi.org/10.1038/s41598-017-16232-5. DOI: Scientific Reports.
+
+GILLEN, Elizabeth et al. Effects of music listening on adult patientsʼ pre-procedural state anxiety in hospital. 2014, https://doi.org/10.1097/01258363-200803000-00003. DOI: International Journal of Evidence-Based Healthcare.
+
+GOLD, Christian et al. Music Therapy or Music Medicine?. 2011, https://doi.org/10.1159/000323166. DOI: Psychotherapy and Psychosomatics.
+
+HERREMANS, Dorien et al. MorpheuS: Generating Structured Music with Constrained Patterns and Tension. 2017, https://doi.org/10.1109/taffc.2017.2737984. DOI: IEEE Transactions on Affective Computing.
+
+HERREMANS, Dorien et al. A Functional Taxonomy of Music Generation Systems. 2017, https://doi.org/10.1145/3108242. DOI: ACM Computing Surveys.
+
+HIMBERG, Tommi et al. Coordinated interpersonal behaviour in collective dance improvisation: the aesthetics of kinaesthetic togetherness. 2018, https://doi.org/10.31234/osf.io/fcets. DOI: Center for Open Science.
+
+BALASOORIYA, Isuri et al. EMPlayer: Emotion Based Music Player. 2025, https://doi.org/10.2139/ssrn.5123526. DOI: Elsevier BV.
+
+HOFFMAN, Guy et al. Robotic experience companionship in music listening and video watching. 2016, https://doi.org/10.1007/s00779-015-0897-1. DOI: Personal and Ubiquitous Computing.
+
+HOVE, Michael J et al. Interactive Rhythmic Auditory Stimulation Reinstates Natural 1/f Timing in Gait of Parkinson's Patients. 2012, https://doi.org/10.1371/journal.pone.0032600. DOI: PLoS ONE.
+
+KIRK, R et al. Computer music in the service of music therapy: the MIDIGRID and MIDICREATOR systems. 2006, https://doi.org/10.1016/1350-4533(94)90046-9. DOI: Medical Engineering & Physics.
+
+WENGENROTH, Ulrich et al. Does Technology Drive History? The Dilemma of Technological Determinism. 2006, https://doi.org/10.2307/1215849. DOI: Technology and Culture.
+
+JANATA, Petr et al. Sensorimotor coupling in music and the psychology of the groove. 2011, https://doi.org/10.1037/a0024208. DOI: Journal of Experimental Psychology: General.
+
+JANSSEN, Berit et al. Finding Occurrences of Melodic Segments in Folk Songs Employing Symbolic Similarity Measures. 2017, https://doi.org/10.1080/09298215.2017.1316292. DOI: Journal of New Music Research.
+
+JUSLIN, Patrik N et al. An experience sampling study of emotional reactions to music: Listener, music, and situation. 2008, https://doi.org/10.1037/a0013505. DOI: Emotion.
+
+JUSLIN, Patrik N et al. Emotional responses to music: The need to consider underlying mechanisms. 2008, https://doi.org/10.1017/s0140525x08006079. DOI: Behavioral and Brain Sciences.
+
+SHUKLA, Pushkal Kumar et al. ESPOTIFY (An Emotion Based Music Player). 2021, https://doi.org/10.22214/ijraset.2021.36356. DOI: International Journal for Research in Applied Science and Engineering Technology.
+
+KAPTEIN, Frank et al. CAAF: A Cognitive Affective Agent Programming Framework. 2016, https://doi.org/10.1007/978-3-319-47665-0_28. DOI: Lecture Notes in Computer Science.
+
+KEISLAR, Douglas et al. A Historical View of Computer Music Technology. 2013, https://doi.org/10.1093/oxfordhb/9780199792030.013.0002. DOI: Oxford Handbooks Online.
+
+KELLER, Peter et al. Ensemble Performance. 2014, https://doi.org/10.1093/acprof:oso/9780199659647.003.0015. DOI: Expressiveness in music performance.
+
+LOPES, Adriana et al. Evaluating HCI Design with Interaction Modeling and Mockups - A Case Study. 2015, https://doi.org/10.5220/0005374200790087. DOI: Proceedings of the 17th International Conference on Enterprise Information Systems.
+
+CAMURRI, Antonio et al. The Intersection of Art and Technology. 2016, https://doi.org/10.1109/mmul.2016.13. DOI: IEEE MultiMedia.
+
+UNKNOWN AUTHOR et al. Proceedings of the 7th international conference on New interfaces for musical expression - NIME '07. 2009, https://doi.org/10.1145/1279740. DOI: ACM Press.
+
+KIRK, Pedro et al. Motivating Stroke Rehabilitation Through Music. 2016, https://doi.org/10.1145/2858036.2858376. DOI: Proceedings of the 2016 CHI Conference on Human Factors in Computing Systems.
+
+KNEES, Peter et al. Intelligent music interfaces for listening and creation. 2019, https://doi.org/10.1145/3308557.3313110. DOI: Companion Proceedings of the 24th International Conference on Intelligent User Interfaces.
+
+KOELSCH, Stefan et al. Music‐evoked emotions: principles, brain correlates, and implications for therapy. 2015, https://doi.org/10.1111/nyas.12684. DOI: Annals of the New York Academy of Sciences.
+
+KOELSTRA, S et al. DEAP: A Database for Emotion Analysis ;Using Physiological Signals. 2011, https://doi.org/10.1109/t-affc.2011.15. DOI: IEEE Transactions on Affective Computing.
+
+VAN HOOREN, S et al. Music Technology in Therapeutic and Health Settings, by Wendy L. Magee (editor). 2019, https://doi.org/10.3233/tad-140415. DOI: Technology and Disability.
+
+TAM, Cynthia et al. Movement‐to‐music computer technology: a developmental play experience for children with severe physical disabilities. 2007, https://doi.org/10.1002/oti.227. DOI: Occupational Therapy International.
+
+HOLLINGWORTH, S et al. British Association of Cardiac Rehabilitation annual conference, 29th–30th September 2000. 2002, https://doi.org/10.1054/chec.2000.0102. DOI: Coronary Health Care.
+
+LARGE, Edward W et al. The dynamics of attending: How people track time-varying events. 2002, https://doi.org/10.1037//0033-295x.106.1.119. DOI: Psychological Review.
+
+UNKNOWN AUTHOR et al. INDEX OF MUSICAL INSTRUMENTS. 2018, https://doi.org/10.18772/12013086055.22. DOI: The Musical Instruments of the Indigenous People of South Africa.
+
+LARTILLOT, Olivier et al. Multi-Dimensional motivic pattern extraction founded on adaptive redundancy filtering. 2006, https://doi.org/10.1080/09298210600578246. DOI: Journal of New Music Research.
+
+LEAHEY, Erin et al. Prominent but Less Productive. 2016, https://doi.org/10.1177/0001839216665364. DOI: Administrative Science Quarterly.
+
+LEUBNER, Daniel et al. Reviewing the Effectiveness of Music Interventions in Treating Depression. 2017, https://doi.org/10.3389/fpsyg.2017.01109. DOI: Frontiers in Psychology.
+
+LINNEMANN, Alexandra et al. The stress-reducing effect of music listening varies depending on the social context. 2016, https://doi.org/10.1016/j.psyneuen.2016.06.003. DOI: Psychoneuroendocrinology.
+
+DE ALENCAR, Marcelo Sampaio et al. History and Evolution of Music. 2022, https://doi.org/10.1201/9781003338895-2. DOI: Music Science.
+
+LOTTE, Fabien et al. A Tutorial on EEG Signal-processing Techniques for Mental-state Recognition in Brain–Computer Interfaces. 2014, https://doi.org/10.1007/978-1-4471-6584-2_7. DOI: Guide to Brain-Computer Music Interfacing.
+
+MAESTRE, Esteban et al. Enriched Multimodal Representations of Music Performances: Online Access and Visualization. 2017, https://doi.org/10.1109/mmul.2017.3. DOI: IEEE MultiMedia.
+
+KNIGHT, Andrew et al. Music Technology in Therapeutic and Health Settings. 2015, https://doi.org/10.1093/mtp/miv023. DOI: Music Therapy Perspectives.
+
+BURLAND, Karen et al. Developing identities using music technology in therapeutic settings. 2012, https://doi.org/10.1177/0305735612463773. DOI: Psychology of Music.
+
+MAGEE, Wendy L et al. Developing theory for using music technologies in music therapy. 2018, https://doi.org/10.1080/08098131.2018.1481450. DOI: Nordic Journal of Music Therapy.
+
+MAGEE, W. L et al. Using Music Technology in Music Therapy With Populations Across the Life Span in Medical and Educational Programs. 2011, https://doi.org/10.1177/1943862111403005. DOI: Music and Medicine.
+
+MAGEE, Wendy L et al. Using music in leisure to enhance social relationships with patients with complex disabilities. 2020, https://doi.org/10.3233/nre-2008-23403. DOI: NeuroRehabilitation.
+
+MAGEE, Wendy L et al. An Exploratory Study of the Use of Electronic Music Technologies in Clinical Music Therapy. 2009, https://doi.org/10.1080/08098130809478204. DOI: Nordic Journal of Music Therapy.
+
+MAGEE, Wendy L et al. Music interventions for acquired brain injury. 2017, https://doi.org/10.1002/14651858.cd006787.pub3. DOI: Cochrane Database of Systematic Reviews.
+
+MANDANICI, Marcella et al. Inclusive sound and music serious games in a large‐scale responsive environment. 2018, https://doi.org/10.1111/bjet.12630. DOI: British Journal of Educational Technology.
+
+MARTÍNEZ-PERNÍA, David et al. Using game authoring platforms to develop screen-based simulated functional assessments in persons with executive dysfunction following traumatic brain injury. 2017, https://doi.org/10.1016/j.jbi.2017.08.012. DOI: Journal of Biomedical Informatics.
+
+MELKONIAN, Orestis et al. What constitutes a musical pattern?. 2019, https://doi.org/10.1145/3331543.3342587. DOI: Proceedings of the 7th ACM SIGPLAN International Workshop on Functional Art, Music, Modeling, and Design.
+
+MEREDITH, David et al. Music Analysis and Point-Set Compression. 2015, https://doi.org/10.1080/09298215.2015.1045003. DOI: Journal of New Music Research.
+
+MEREDITH, David et al. Computational Music Analysis. 2015, https://doi.org/10.1007/978-3-319-25931-4. DOI: Springer International Publishing.
+
+MEREDITH, David et al. Algorithms for discovering repeated patterns in multidimensional representations of polyphonic music. 2003, https://doi.org/10.1076/jnmr.31.4.321.14162. DOI: Journal of New Music Research.
+
+MEYER, Leonard B et al. Emotion and Meaning in Music. 2013, https://doi.org/10.7208/chicago/9780226521374.001.0001. DOI: University of Chicago Press.
+
+MIRANDA, Eduardo Reck et al. Guide to Brain-Computer Music Interfacing. 2014, https://doi.org/10.1007/978-1-4471-6584-2. DOI: Springer London.
+
+MIRANDA, E. R et al. Brain-Computer Music Interfacing (BCMI): From Basic Research to the Real World of Special Needs. 2011, https://doi.org/10.1177/1943862111399290. DOI: Music and Medicine.
+
+MOENS, Bart et al. Encouraging Spontaneous Synchronisation with D-Jogger, an Adaptive Music Player That Aligns Movement and Music. 2014, https://doi.org/10.1371/journal.pone.0114234. DOI: PLoS ONE.
+
+MOORE, K. S et al. A Systematic Review on the Neural Effects of Music on Emotion Regulation: Implications for Music Therapy Practice. 2013, https://doi.org/10.1093/jmt/50.3.198. DOI: Journal of Music Therapy.
+
+NEERINCX, Mark A et al. Attuning speech-enabled interfaces to user and context for inclusive design: technology, methodology and practice. 2008, https://doi.org/10.1007/s10209-008-0136-x. DOI: Universal Access in the Information Society.
+
+NEERINCX, Mark A et al. Socio-Cognitive Engineering of a Robotic Partner for Child's Diabetes Self-Management. 2019, https://doi.org/10.3389/frobt.2019.00118. DOI: Frontiers in Robotics and AI.
+
+UNKNOWN AUTHOR et al. Exploring Tonal Structure in French Polyphonic Song of the Fourteenth Century. 2020, https://doi.org/10.4324/9781315054032-10. DOI: Tonal Structures in Early Music.
+
+NOBRE, Anna C et al. Anticipated moments: temporal structure in attention. 2017, https://doi.org/10.1038/nrn.2017.141. DOI: Nature Reviews Neuroscience.
+
+NOMBELA, Cristina et al. Into the groove: Can rhythm influence Parkinson's disease?. 2013, https://doi.org/10.1016/j.neubiorev.2013.08.003. DOI: Neuroscience & Biobehavioral Reviews.
+
+NOY, Lior et al. Being in the zone: physiological markers of togetherness in joint improvisation. 2015, https://doi.org/10.3389/fnhum.2015.00187. DOI: Frontiers in Human Neuroscience.
+
+NOZARADAN, S et al. Tagging the Neuronal Entrainment to Beat and Meter. 2011, https://doi.org/10.1523/jneurosci.0411-11.2011. DOI: Journal of Neuroscience.
+
+OLIVEROS, P et al. A Musical Improvisation Interface for People With Severe Physical Disabilities. 2011, https://doi.org/10.1177/1943862111411924. DOI: Music and Medicine.
+
+ORJI, Rita et al. Persuasive technology for health and wellness: State-of-the-art and emerging trends. 2016, https://doi.org/10.1177/1460458216650979. DOI: Health Informatics Journal.
+
+PACHET, Fran�ois et al. The Continuator: Musical Interaction With Style. 2003, https://doi.org/10.1076/jnmr.32.3.333.16861. DOI: Journal of New Music Research.
+
+PEARCE, Eiluned et al. The ice-breaker effect: singing mediates fast social bonding. 2015, https://doi.org/10.1098/rsos.150221. DOI: Royal Society Open Science.
+
+PEARCE, Marcus T et al. Auditory Expectation: The Information Dynamics of Music Perception and Cognition. 2012, https://doi.org/10.1111/j.1756-8765.2012.01214.x. DOI: Topics in Cognitive Science.
+
+PEETERS, Marieke M.M et al. Designing a personal music assistant that enhances the social, cognitive, and affective experiences of people with dementia. 2016, https://doi.org/10.1016/j.chb.2016.06.003. DOI: Computers in Human Behavior.
+
+PELLETIER, C. L et al. The Effect of Music on Decreasing Arousal Due to Stress: A Meta-Analysis. 2013, https://doi.org/10.1093/jmt/41.3.192. DOI: Journal of Music Therapy.
+
+PERETZ, Isabelle et al. The Cognitive Neuroscience of Music. 2012, https://doi.org/10.1093/acprof:oso/9780198525202.001.0001. DOI: Oxford University Press.
+
+PERSSON, Hans et al. Universal design, inclusive design, accessible design, design for all: different concepts—one goal? On the concept of accessibility—historical, methodological and philosophical aspects. 2014, https://doi.org/10.1007/s10209-014-0358-z. DOI: Universal Access in the Information Society.
+
+THAO, Ha Thi Phuong et al. Multimodal Deep Models for Predicting Affective Responses Evoked by Movies. 2020, https://doi.org/10.1109/iccvw.2019.00201. DOI: 2019 IEEE/CVF International Conference on Computer Vision Workshop (ICCVW).
+
+PICARD, Rosalind W et al. Affective Computing. 2019, https://doi.org/10.7551/mitpress/1140.001.0001. DOI: The MIT Press.
+
+KHAN, Arshia A et al. Music and humanoid robots aid in performing daily living activities in people affected with advance stage dementia. 2023, https://doi.org/10.1002/alz.079479. DOI: Alzheimer's & Dementia.
+
+RAMIREZ, Rafael et al. Musical neurofeedback for treating depression in elderly people. 2015, https://doi.org/10.3389/fnins.2015.00354. DOI: Frontiers in Neuroscience.
+
+RAMSEY, D. W et al. Designing Musically Assisted Rehabilitation Systems. 2011, https://doi.org/10.1177/1943862111411718. DOI: Music and Medicine.
+
+UNKNOWN AUTHOR et al. Michael Roberts, Review, 'london Mercury', Sep-tember 1937. 2020, https://doi.org/10.4324/9780203198513-49. DOI: W.H. Auden.
+
+RIPOLLÉS, P et al. Music supported therapy promotes motor plasticity in individuals with chronic stroke. 2015, https://doi.org/10.1007/s11682-015-9498-x. DOI: Brain Imaging and Behavior.
+
+ROBINSON, Nicole Lee et al. Psychosocial Health Interventions by Social Robots: Systematic Review of Randomized Controlled Trials. 2019, https://doi.org/10.2196/13203. DOI: Journal of Medical Internet Research.
+
+PENNISI, Paola et al. Autism and social robotics: A systematic review. 2015, https://doi.org/10.1002/aur.1527. DOI: Autism Research.
+
+SALA, Giovanni et al. Cognitive and academic benefits of music training with children: A multilevel meta-analysis. 2020, https://doi.org/10.31234/osf.io/7s8wr. DOI: Center for Open Science.
+
+KORENMAN, Lisa M et al. The Role of Familiarity in Episodic Memory and Metamemory for Music. 2004, https://doi.org/10.1037/0278-7393.30.4.917. DOI: Journal of Experimental Psychology: Learning, Memory, and Cognition.
+
+SALIMPOOR, Valorie N et al. Anatomically distinct dopamine release during anticipation and experience of peak emotion to music. 2011, https://doi.org/10.1038/nn.2726. DOI: Nature Neuroscience.
+
+SALIMPOOR, Valorie N et al. Predictions and the brain: how musical sounds become rewarding. 2014, https://doi.org/10.1016/j.tics.2014.12.001. DOI: Trends in Cognitive Sciences.
+
+SAPP, Craig Stuart et al. Visual hierarchical key analysis. 2005, https://doi.org/10.1145/1095534.1095544. DOI: Computers in Entertainment.
+
+SÄRKÄMÖ, Teppo et al. Cognitive, emotional, and neural benefits of musical leisure activities in aging and neurological rehabilitation: A critical review. 2017, https://doi.org/10.1016/j.rehab.2017.03.006. DOI: Annals of Physical and Rehabilitation Medicine.
+
+SARKAMO, T et al. Music listening enhances cognitive recovery and mood after middle cerebral artery stroke. 2008, https://doi.org/10.1093/brain/awn013. DOI: Brain.
+
+SÄRKÄMÖ, Teppo et al. Cognitive, Emotional, and Social Benefits of Regular Musical Activities in Early Dementia: Randomized Controlled Study. 2013, https://doi.org/10.1093/geront/gnt100. DOI: The Gerontologist.
+
+UNKNOWN AUTHOR et al. Philosophical Transactions of the Royal Society B: biological sciences. 2026, https://doi.org/10.1098/rstb. DOI: The Royal Society.
+
+SCHAEFER, Rebecca S et al. Intuitive visualizations of pitch and loudness in speech. 2015, https://doi.org/10.3758/s13423-015-0934-0. DOI: Psychonomic Bulletin & Review.
+
+SCHEDL, Markus et al. A personality-based adaptive system for visualizing classical music performances. 2016, https://doi.org/10.1145/2910017.2910604. DOI: Proceedings of the 7th International Conference on Multimedia Systems.
+
+UNKNOWN AUTHOR et al. Assessment of the Effect of Liquid Smokes on the Chemical Composi-tion and Quality Attributes of Fish Balls During Chilled Storage. 2017, https://doi.org/10.21608/ajas.2015.541. DOI: Assiut Journal of Agricultural Sciences.
+
+SCHOLZ, Daniel S et al. Sonification of Arm Movements in Stroke Rehabilitation – A Novel Approach in Neurologic Music Therapy. 2016, https://doi.org/10.3389/fneur.2016.00106. DOI: Frontiers in Neurology.
+
+SCHULKIN, Jay et al. The evolution of music and human social capability. 2014, https://doi.org/10.3389/fnins.2014.00292. DOI: Frontiers in Neuroscience.
+
+SCIREA, Marco et al. Affective evolutionary music composition with MetaCompose. 2017, https://doi.org/10.1007/s10710-017-9307-y. DOI: Genetic Programming and Evolvable Machines.
+
+GOUYON, Fabien et al. Acoustic Cues to Beat Induction: A Machine Learning Perspective. 2006, https://doi.org/10.1525/mp.2006.24.2.177. DOI: Music Perception.
+
+EYLE, Wim van et al. Peeters, Joep. 2018, https://doi.org/10.1093/gmo/9781561592630.article.j665300. DOI: Oxford Music Online.
+
+SIGRIST, Roland et al. Sonification and haptic feedback in addition to visual feedback enhances complex motor task learning. 2014, https://doi.org/10.1007/s00221-014-4167-7. DOI: Experimental Brain Research.
+
+SIHVONEN, Aleksi J et al. Music-based interventions in neurological rehabilitation. 2017, https://doi.org/10.1016/s1474-4422(17)30168-0. DOI: The Lancet Neurology.
+
+SMITH, Eimear et al. Locked-in syndrome. 2005, https://doi.org/10.1136/bmj.330.7488.406. DOI: BMJ.
+
+UNKNOWN AUTHOR et al. Double-Pose Calibration of Inertial Motion Capture for Rapid Knee Evaluation. 2022, https://doi.org/10.1302/3114-220912. DOI: OrthoMedia.
+
+SPAULDING, Sandi J et al. Cueing and Gait Improvement Among People With Parkinson's Disease: A Meta-Analysis. 2012, https://doi.org/10.1016/j.apmr.2012.10.026. DOI: Archives of Physical Medicine and Rehabilitation.
+
+UNKNOWN AUTHOR et al. The Benefits of Music Therapy on Preterm Infants in the Intensive Care Unit. 2023, https://doi.org/10.33140/jpnb.08.01.05. DOI: Journal of Pediatrics & Neonatal Biology.
+
+STEWART, Lauren et al. Disorders of Musical Cognition. 2013, https://doi.org/10.1093/oxfordhb/9780199298457.013.0017. DOI: Oxford Handbooks Online.
+
+SCHNEIDER, Sabine et al. Music-Supported Training is More Efficient than Functional Motor Training for Recovery of Fine Motor Skills in Stroke Patients. 2010, https://doi.org/10.1525/mp.2010.27.4.271. DOI: Music Perception.
+
+CAMERON, Daniel et al. Perception of Rhythm. 2020, https://doi.org/10.1017/9781108631730.004. DOI: The Cambridge Companion to Rhythm.
+
+GIM, Yerim et al. Conference Report: The 26th International Society for Music Information Retrieval Conference (ISMIR 2025). 2026, https://doi.org/10.36364/jmt.45.6. DOI: Journal of Music and Theory.
+
+STOYKOV, Mary Ellen et al. A review of bilateral training for upper extremity hemiparesis. 2009, https://doi.org/10.1002/oti.277. DOI: Occupational Therapy International.
+
+UNKNOWN AUTHOR et al. Feldman, Sally Joy, (born 10 March 1948), media trainer, journalist, humanist celebrant; Honorary Fellow, Creative Industries, University of Westminster (Senior Fellow, 2012). 2018, https://doi.org/10.1093/ww/9780199540884.013.u44835. DOI: Who's Who.
+
+TAHERI, Alireza et al. Social Robots and Teaching Music to Autistic Children: Myth or Reality?. 2016, https://doi.org/10.1007/978-3-319-47437-3_53. DOI: Lecture Notes in Computer Science.
+
+TAKAGI, Atsushi et al. Individuals physically interacting in a group rapidly coordinate their movement by estimating the collective goal. 2019, https://doi.org/10.7554/elife.41328. DOI: eLife.
+
+TAN, Siu-Lan et al. Psychology of Music. 2017, https://doi.org/10.4324/9781315648026. DOI: Routledge.
+
+TARR, Bronwyn et al. Music and social bonding: â€œself-otherâ€ merging and neurohormonal mechanisms. 2014, https://doi.org/10.3389/fpsyg.2014.01096. DOI: Frontiers in Psychology.
+
+THAUT, M. H et al. Rhythmic auditory stimulation in gait training for Parkinson's disease patients. 2004, https://doi.org/10.1002/mds.870110213. DOI: Movement Disorders.
+
+THOMA, Myriam V et al. Emotion regulation through listening to music in everyday situations. 2011, https://doi.org/10.1080/02699931.2011.595390. DOI: Cognition and Emotion.
+
+VAMVAKOUSIS, Zacharias et al. The EyeHarp: A Gaze-Controlled Digital Musical Instrument. 2016, https://doi.org/10.3389/fpsyg.2016.00906. DOI: Frontiers in Psychology.
+
+VAMVAKOUSIS, Zacharias et al. A low-cost auditory multi-class brain-computer interface based on pitch, spatial and timbre cues. 2018, https://doi.org/10.7287/peerj.preprints.179v1. DOI: PeerJ.
+
+VAMVAKOUSIS ZACHARIAS et al. A High-Throughput Auditory P300 Interface for Everyone. 2025, https://doi.org/10.3233/978-1-61499-304-9-478. DOI: Assistive Technology Research Series.
+
+VINOO, Deepa et al. Music and Memory in Dementia Care. 2017, https://doi.org/10.4172/2376-0281.1000255. DOI: International Journal of Neurorehabilitation.
+
+VOLK, Anja et al. The Study of Syncopation Using Inner Metric Analysis: Linking Theoretical and Experimental Analysis of Metre in Music. 2009, https://doi.org/10.1080/09298210802680758. DOI: Journal of New Music Research.
+
+VOLPE, Gualtiero et al. Measuring social interaction in music ensembles. 2016, https://doi.org/10.1098/rstb.2015.0377. DOI: Philosophical Transactions of the Royal Society B: Biological Sciences.
+
+MATNEY, Bill et al. <b>Music therapy handbook</b>, edited by Barbara L. Wheeler, New York, The Guilford Press, 205. ISBN 9781462529728. 2016, https://doi.org/10.1080/08098131.2016.1221608. DOI: Nordic Journal of Music Therapy.
+
+SKRUDLAND, Hilde et al. Boganmeldelse - Improvisation. 2025, https://doi.org/10.7146/tdm.v1i2.159631. DOI: Tidsskriftet Dansk Musikterapi.
+
+ANSOLABEHERE, Stephen et al. Social Sciences & the Alternative Energy Future. 2013, https://doi.org/10.1162/daed_a_00192. DOI: Daedalus.
+
+WILSON, Barbara A et al. Neuropsychological Rehabilitation. 2018, https://doi.org/10.4324/9781315629537. DOI: Routledge.
+
+IKENAKA, K et al. Development and Differentiation of the Nervous System. 2014, https://doi.org/10.1159/isbn.978-3-8055-8944-4. DOI: S. Karger AG.
+
+YANG, Yi-Hsuan et al. Machine Recognition of Music Emotion. 2012, https://doi.org/10.1145/2168752.2168754. DOI: ACM Transactions on Intelligent Systems and Technology.
+
+SCHMICKAL, Anja et al. 3 Forschungsstand: Richard Wagners »Ring des Nibelungen« in den Diskussionen. 2025, https://doi.org/10.5771/9783689003999-23. DOI: Musikalische Werke als Kunstreligion.
+
+ZATORRE, Robert J et al. Predispositions and Plasticity in Music and Speech Learning: Neural Correlates and Implications. 2013, https://doi.org/10.1126/science.1238414. DOI: Science.
+
+ZATORRE, Robert J et al. Musical pleasure and reward: mechanisms and dysfunction. 2015, https://doi.org/10.1111/nyas.12677. DOI: Annals of the New York Academy of Sciences.
+
+ZATORRE, Robert J et al. When the brain plays music: auditory–motor interactions in music perception and production. 2007, https://doi.org/10.1038/nrn2152. DOI: Nature Reviews Neuroscience.
+
+ZHAO, Wei et al. Automated sleep quality measurement using EEG signal. 2010, https://doi.org/10.1145/1873951.1874154. DOI: Proceedings of the 18th ACM international conference on Multimedia.
+
+ZIV, Gal et al. Music, Exercise Performance, and Adherence in Clinical Populations and in the Elderly: A Review. 2016, https://doi.org/10.1123/jcsp.5.1.1. DOI: Journal of Clinical Sport Psychology.
